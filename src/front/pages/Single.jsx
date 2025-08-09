@@ -6,6 +6,7 @@ export const Single = props => {
   const { store } = useGlobalReducer()
   const { theId } = useParams()
  
+  
 
   return (
     <div className="container text-center">
@@ -13,4 +14,3 @@ export const Single = props => {
     </div>
   );
 };
-
