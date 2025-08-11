@@ -11,10 +11,13 @@ export const Home = () => {
 		<div className="text-center mt-5">
 			<h1 className="display-4">Hello Rigo!!</h1>
 			<PopupButton
-				url={url}
+				url="https://book.squareup.com/appointments/i7seipt2tf3nqd/location/LZ8PPFN3NJMYT/services"
 				rootElement={document.getElementById("root")}
 				text="Book Now"
 			/>
+			<a href="https://book.squareup.com/appointments/i7seipt2tf3nqd/location/LZ8PPFN3NJMYT/services" target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+				Book Now
+			</a>
 		</div>
 	);
 };
