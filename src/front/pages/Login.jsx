@@ -24,12 +24,22 @@ export const Login = () => {
             throw ("Invalid email or password format")
         }
         const data = await resp.json()
-        
-        {/* changed from localStorage.setItem, this lets me re-render navbar in real time */}
+
+        {/* changed from localStorage.setItem, this lets me re-render navbar in real time */ }
         authLogin(data.token);
 
         return data
     }
+
+    const handleLogin = async () => {
+        try {
+            await login(emailInputValue, passwordInputValue);
+            window.location.href = "/";
+        } catch (error) {
+            console.error(error);
+            // optionally show user error message here
+        }
+    };
 
     return (
         <div>
@@ -57,7 +67,7 @@ export const Login = () => {
                                         <Link to="/" className="btn btn-secondary ms-2 text-decoration-none">
                                             Cancel
                                         </Link>
-                                        <button type="text" onClick={() => login(emailInputValue, passwordInputValue)} className="btn btn-success ms-2 text-decoration-none">
+                                        <button type="text" onClick={() => handleLogin(emailInputValue, passwordInputValue)} className="btn btn-success ms-2 text-decoration-none">
                                             Log in!
                                         </button>
                                     </div>

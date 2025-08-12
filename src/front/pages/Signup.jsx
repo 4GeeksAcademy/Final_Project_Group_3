@@ -1,34 +1,44 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
+{/* Navigate is NOT working... */}
+
 export const Signup = () => {
     const [fNameInputValue, setFNameInputValue] = useState("");
     const [lNameInputValue, setLNameInputValue] = useState("");
     const [emailInputValue, setEmailInputValue] = useState("");
     const [passwordInputValue, setPasswordInputValue] = useState("");
     const [phoneInputValue, setPhoneInputValue] = useState("");
-    const navigate = useNavigate
+    const navigate = useNavigate();
 
-    const createUser = (e) => {
-        e.preventDefault()
-        let data = { email: emailInputValue, password: passwordInputValue, phone: phoneInputValue, first: fNameInputValue, last: lNameInputValue }
-        fetch('https://curly-space-doodle-v6wjv49jxxp62px57-3001.app.github.dev/api/user', {
-            method: 'POST',
-            body: JSON.stringify(data),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(res => {
-                if (!res.ok) throw Error(res.statusText);
-                return res.json();
-            })
-            .then(response => {
-                console.log('Success:', response)
-                navigate("/");
-            })
-            .catch(error => console.error(error))
-    }
+    const createUser = async (e) => {
+  e.preventDefault();
+  let data = {
+    email: emailInputValue,
+    password: passwordInputValue,
+    phone: phoneInputValue,
+    first: fNameInputValue,
+    last: lNameInputValue
+  };
+
+  try {
+    const res = await fetch('https://curly-space-doodle-v6wjv49jxxp62px57-3001.app.github.dev/api/user', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (!res.ok) throw new Error(res.statusText);
+
+    const response = await res.json();
+    console.log('Success:', response);
+    console.log("Navigating now")
+    navigate("/");
+
+  } catch (error) {
+    console.error(error);
+  }
+};
 
     return (
         <div>
