@@ -13,9 +13,6 @@ api = Blueprint('api', __name__)
 CORS(api)
 
 
-app = Flask(__name__)
-jwt = JWTManager(app)
-
 @api.route('/hello', methods=['POST', 'GET'])
 def handle_hello():
 
