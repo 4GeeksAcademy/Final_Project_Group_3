@@ -20,3 +20,19 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+@api.route('/user', methods=['POST'])
+def sign_up():
+
+    body = request.json #request.json gives body in dictionary format
+    print(body)
+
+    user = User(email = body["email"], password = body["password"], phone = body["phone"], fname = body["first"], lname = body["last"])
+    db.session.add(user)
+    db.session.commit()
+
+    record_exists = User.query.filter_by(email = body["email"])
+    if record_exists:
+        return "recieved", 200
+    else:
+        return "Error, user could not be created", 500
