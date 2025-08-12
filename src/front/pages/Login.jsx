@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export const Login = () => {
     const [emailInputValue, setEmailInputValue] = useState("");
     const [passwordInputValue, setPasswordInputValue] = useState("");
+
+    const { authLogin } = useAuth();
 
     const login = async (email, password) => {
         const resp = await fetch(`https://curly-space-doodle-v6wjv49jxxp62px57-3001.app.github.dev/api/token`, {
@@ -21,7 +24,9 @@ export const Login = () => {
             throw ("Invalid email or password format")
         }
         const data = await resp.json()
-        localStorage.setItem("jwt-token", data.token);
+        
+        {/* changed from localStorage.setItem, this lets me re-render navbar in real time */}
+        authLogin(data.token);
 
         return data
     }
