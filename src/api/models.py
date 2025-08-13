@@ -11,7 +11,7 @@ class User(db.Model):
     phone: Mapped[str] = mapped_column(String(120),nullable=False) # maybe change to int later (check api)
     fname: Mapped[str] = mapped_column(String(120),nullable=False)
     lname: Mapped[str] = mapped_column(String(120),nullable=False)
-    
+    role: Mapped[str] = mapped_column(String(20), nullable=False, default="Customer")
 
 
     def serialize(self):

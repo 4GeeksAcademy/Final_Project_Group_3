@@ -7,7 +7,7 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem("jwt-token"));
 
-  {/* Messy, clean later. Maybe remove. // authLogin name changed */}
+  {/* authLogin name changed */}
   function authLogin(newToken) {
     localStorage.setItem("jwt-token", newToken);
     setToken(newToken);
