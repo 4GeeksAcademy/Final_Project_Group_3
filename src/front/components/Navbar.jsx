@@ -15,7 +15,7 @@ export const Navbar = () => {
 		<nav className="navbar navbar-light bg-light">
 			<div className="container">
 				<Link to="/" className="text-decoration-none">
-					<span className="navbar-brand mb-0 h1">Salon Name Here</span>
+					<span className="navbar-brand mb-0 h1">Icon Nails & Spa</span>
 				</Link>
 				{/* Invisible div pushes all the buttons over */}
 				<div className="ms-auto"></div>
