@@ -1,0 +1,54 @@
+:root {
+  --gold: #d4af37;
+}
+
+/* Hero fixes */
+.hero-ratio { min-height: 55vh; }            /* taller on desktop */
+@media (min-width: 992px) { .hero-ratio { min-height: 70vh; } }
+
+.hero-img {
+  object-fit: cover;                          /* crop instead of stretch */
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  padding: 2rem;
+  /* subtle dark gradient for readability */
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.35) 0%,
+    rgba(0, 0, 0, 0.25) 40%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
+}
+
+.text-shadow { text-shadow: 0 6px 30px rgba(0,0,0,.45); }
+
+/* Gold button */
+.btn-gold {
+  background-color: var(--gold);
+  border-color: var(--gold);
+  color: #111;
+}
+.btn-gold:hover {
+  background-color: #c39b2f;
+  border-color: #c39b2f;
+  color: #111;
+}
+
+/* Cards */
+.service-card { border: 1px solid rgba(0,0,0,.06); }
+.hover-lift { transition: transform .2s ease, box-shadow .2s ease; }
+.hover-lift:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,.12); }
+
+.text-gold { color: var(--gold); }
+
+/* Section headings */
+.section-heading {
+  font-size: clamp(1.25rem, 1.4rem + .6vw, 1.75rem);
+  font-weight: 700;
+}
+
+/* make sure icons align nicely with text */
+#find-us i { vertical-align: -2px; }
