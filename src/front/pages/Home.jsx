@@ -4,6 +4,7 @@ import heroImage2 from "../assets/img/nails2.jpg";
 import salonImage from "../assets/img/salon.webp";
 
 export const Home = () => {
+
 	return (
 		<div className="text-center">
 			{/* HERO */}
