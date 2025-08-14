@@ -12,7 +12,7 @@ export const Navbar = () => {
 	const { loggedIn, logout } = useAuth();
 
 	return (
-		<nav className="navbar navbar-light bg-light">
+		<nav className="navbar navbar-dark bg-dark">
 			<div className="container">
 				<Link to="/" className="text-decoration-none">
 					<span className="navbar-brand mb-0 h1">Icon Nails & Spa</span>
@@ -20,15 +20,15 @@ export const Navbar = () => {
 				{/* Invisible div pushes all the buttons over */}
 				<div className="ms-auto"></div>
 				<Link to="/" className="text-decoration-none">
-					<span className="navbar-text mb-0">About Us/Contact</span>
+					<span className="navbar-text mb-0 highlight-on-hover">About Us/Contact</span>
 				</Link>
 				<Link to="/" className="text-decoration-none">
-					<span className="navbar-text mb-0 ms-3">Booking</span>
+					<span className="navbar-text mb-0 ms-3 highlight-on-hover">Booking</span>
 				</Link>
 				<div className="ms-4">
 					<div className="dropdown" style={{ position: 'relative' }}>
 						<button
-							className="btn btn-secondary dropdown-toggle"
+							className="btn btn-gold dropdown-toggle"
 							type="button"
 							id="dropdownMenuButton"
 							data-bs-toggle="dropdown"
@@ -36,16 +36,16 @@ export const Navbar = () => {
 						>
 							Account
 						</button>
-						<ul className="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+						<ul className="dropdown-menu dropdown-menu-end bg-dark" aria-labelledby="dropdownMenuButton">
 							{loggedIn ? (
 								<>
-									<li><a className="dropdown-item text-primary" href="/profile">My Info</a></li>
-									<li><button className="dropdown-item" onClick={logout}>Logout</button></li>
+									<li><a className="dropdown-item text-warning nav-drop" href="/profile">My Info</a></li>
+									<li><button className="dropdown-item text-light nav-drop" onClick={logout}>Logout</button></li>
 								</>
 							) : (
 								<>
-									<li><a className="dropdown-item" href="/login">Login</a></li>
-									<li><a className="dropdown-item" href="/signup">Sign Up</a></li>
+									<li><a className="dropdown-item text-warning nav-drop" href="/login">Login</a></li>
+									<li><a className="dropdown-item text-light nav-drop" href="/signup">Sign Up</a></li>
 								</>
 							)}
 
