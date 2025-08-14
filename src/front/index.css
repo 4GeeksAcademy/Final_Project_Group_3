@@ -1,5 +1,6 @@
 :root {
   --gold: #d4af37;
+  --hover: #181C20;
 }
 
 /* Hero fixes */
@@ -52,3 +53,12 @@
 
 /* make sure icons align nicely with text */
 #find-us i { vertical-align: -2px; }
+
+.highlight-on-hover:hover {
+  color: var(--gold);
+}
+
+.nav-drop:hover {
+  background-color: var(--hover); /* or your preferred highlight color */
+  color: var(--gold);
+}
