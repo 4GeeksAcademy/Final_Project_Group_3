@@ -39,7 +39,7 @@ export const Navbar = () => {
 						<ul className="dropdown-menu dropdown-menu-end bg-dark" aria-labelledby="dropdownMenuButton">
 							{loggedIn ? (
 								<>
-									<li><a className="dropdown-item text-warning nav-drop" href="/profile">My Info</a></li>
+									<li><a className="dropdown-item text-warning nav-drop" href="/account">My Info</a></li>
 									<li><button className="dropdown-item text-light nav-drop" onClick={logout}>Logout</button></li>
 								</>
 							) : (
