@@ -1,4 +1,45 @@
+import { useEffect, useState } from "react";
+
 export const InfoTab = () => {
+
+    {/* add edit functionality (PUT) */ }
+    {/* add placeholders from account (GET) */ }
+
+    {/* Sets form to blank */ }
+    const [form, setForm] = useState({
+        first: "",
+        last: "",
+        email: "",
+        phone: ""
+    });
+
+    {/* Runs backend function "getMe" to get the current user via the token */ }
+    
+    async function getMe() {
+        try {
+            const res = await fetch("https://curly-space-doodle-v6wjv49jxxp62px57-3001.app.github.dev/api/me", {
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("jwt_token")}`
+                }
+            });
+            if (!res.ok) throw new Error("Failed to fetch user");
+            const data = await res.json();
+            setForm({
+                first: data.first,
+                last: data.last,
+                email: data.email,
+                phone: data.phone
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    useEffect(() => {
+        getMe();
+    }, []);
+
+
 
     return (
         <div>
@@ -6,33 +47,53 @@ export const InfoTab = () => {
                 <div className="row">
                     <div className="col-6">
                         <div>
-                            <div class="input-group mb-3">
-                                <span class="input-group-text" id="changemeid1">First Name</span>
-                                <input type="text" class="form-control" placeholder="PlcHld First" aria-label="changemela1" aria-describedby="changemeid1" />
+                            <div className="input-group mb-3">
+                                <span className="input-group-text" id="changemeid1">First Name</span>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    value={form.first}
+                                    onChange={(e) => setForm({ ...form, first: e.target.value })}
+                                />
                             </div>
-                            <div class="input-group mb-3">
-                                <span class="input-group-text" id="changemeid2">Last Name</span>
-                                <input type="text" class="form-control" placeholder="PlHld Last" aria-label="changemela2" aria-describedby="changemeid2" />
+                            <div className="input-group mb-3">
+                                <span className="input-group-text" id="changemeid2">Last Name</span>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    value={form.last}
+                                    onChange={(e) => setForm({ ...form, last: e.target.value })}
+                                />
                             </div>
                         </div>
                     </div>
                     <div className="col-6">
                         <div>
-                            <div class="input-group mb-3">
-                                <span class="input-group-text" id="changemeid3">E-Mail</span>
-                                <input type="text" class="form-control" placeholder="PlcHld Mail" aria-label="changemela3" aria-describedby="changemeid3" />
+                            <div className="input-group mb-3">
+                                <span className="input-group-text" id="changemeid3">E-Mail</span>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    value={form.email}
+                                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                                />
                             </div>
-                            <div class="input-group mb-3">
-                                <span class="input-group-text" id="changemeid4">Phone #</span>
-                                <input type="text" class="form-control" placeholder="PlHld Phone" aria-label="changemela4" aria-describedby="changemeid4" />
+                            <div className="input-group mb-3">
+                                <span className="input-group-text" id="changemeid4">Phone #</span>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    value={form.phone}
+                                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                                />
                             </div>
                         </div>
                     </div>
                     <div className="d-flex">
-                    <div className="ms-auto">
-                        <button className="btn btn-secondary">Cancel</button>
-                        <button className="btn btn-gold ms-2 me-5">Save</button>
-                    </div>
+                        <div className="ms-auto">
+                            <button className="btn btn-secondary">Cancel</button>
+                            <button className="btn btn-gold ms-2 me-5">Save</button>
+                        </div>
                     </div>
                 </div>
             </div>

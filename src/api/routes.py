@@ -22,22 +22,25 @@ def handle_hello():
 
     return jsonify(response_body), 200
 
+
 @api.route('/user', methods=['POST'])
 def sign_up():
 
-    body = request.json #request.json gives body in dictionary format
+    body = request.json  # request.json gives body in dictionary format
     print(body)
 
-    user = User(email = body["email"], password = body["password"], phone = body["phone"], fname = body["first"], lname = body["last"])
+    user = User(email=body["email"], password=body["password"],
+                phone=body["phone"], fname=body["first"], lname=body["last"])
     db.session.add(user)
     db.session.commit()
 
-    record_exists = User.query.filter_by(email = body["email"])
+    record_exists = User.query.filter_by(email=body["email"])
     if record_exists:
         return "recieved", 200
     else:
         return "Error, user could not be created", 500
-    
+
+
 @api.route("/token", methods=["POST"])
 def create_token():
     email = request.json.get("email", None)
@@ -49,7 +52,42 @@ def create_token():
     if user is None:
         # The user was not found on the database
         return jsonify({"msg": "Bad email or password"}), 401
-    
+
     # Create a new token with the user id inside
-    access_token = create_access_token(identity=user.email)
-    return jsonify({ "token": access_token, "user_id": user.id })
+    # Temporarily changed (identity=user.email) to (identity=user.id)
+    access_token = create_access_token(identity=user.id)
+    return jsonify({"token": access_token, "user_id": user.id})
+
+# Get currently logged in user
+
+
+@api.route("/me", methods=["GET"])
+@jwt_required()
+def me():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    return jsonify({
+        "id": user.id,
+        "first": user.fname,
+        "email": user.email
+    })
+
+
+@api.route("/admins", methods=["GET"])
+@jwt_required()
+def get_admins():
+    admins = User.query.filter_by(role="Admin").all()
+    if not admins:
+        return jsonify({"msg": "No admins found"}), 404
+
+    return jsonify([
+        {
+            "id": admin.id,
+            "first": admin.fname,
+            "email": admin.email
+        }
+        for admin in admins
+    ])
