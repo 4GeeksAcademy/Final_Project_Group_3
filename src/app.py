@@ -20,6 +20,11 @@ static_file_dir = os.path.join(os.path.dirname(
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
+#adding CORS to allow cross-origin requests
+from flask_cors import CORS
+CORS(app, resources={r"/*": {"origins": "*"}})  # dev mode
+
+
 #not sure what this does or why i have to put it here, circle back
 app.config["JWT_SECRET_KEY"] = "super-secret"  # BEFORE PUSHING, this should be changed to a variable for security; check out os and dotenv
 jwt = JWTManager(app)
