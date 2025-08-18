@@ -58,13 +58,23 @@ def create_token():
     access_token = create_access_token(identity=user.id)
     return jsonify({"token": access_token, "user_id": user.id})
 
-# Get currently logged in user
+# Get currently logged in user (Protected)
+#@api.route("/me", methods=["GET"])
+# @jwt_required(optional=True)
+#def me():
+#    user_id = get_jwt_identity()
+#    user = User.query.get(user_id)
+#    if not user:
+#        return jsonify({"msg": "User not found"}), 404
 
+#    return jsonify({
+#        "id": user.id,
+#        "first": user.fname,
+#        "email": user.email
+#    })
 
-@api.route("/me", methods=["GET"])
-@jwt_required(optional=True)
-def me():
-    user_id = get_jwt_identity()
+@api.route("/me/<int:user_id>", methods=["GET"])
+def me(user_id):
     user = User.query.get(user_id)
     if not user:
         return jsonify({"msg": "User not found"}), 404
@@ -72,7 +82,9 @@ def me():
     return jsonify({
         "id": user.id,
         "first": user.fname,
-        "email": user.email
+        "last": user.lname,
+        "email": user.email,
+        "phone": user.phone,
     })
 
 

@@ -26,7 +26,7 @@ export const Login = () => {
         const data = await resp.json()
 
         {/* changed from localStorage.setItem, this lets me re-render navbar in real time */ }
-        authLogin(data.token);
+        authLogin(data.token, data.user_id);
 
         return data
     }

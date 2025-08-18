@@ -5,27 +5,48 @@ export const InfoTab = () => {
     {/* add edit functionality (PUT) */ }
     {/* add placeholders from account (GET) */ }
 
-    {/* sets form to blank */ }
+    {/* placeholder values */ }
     const [form, setForm] = useState({
-        first: "",
-        last: "",
-        email: "",
-        phone: ""
+        first: "Loading...",
+        last: "Loading...",
+        email: "Loading...",
+        phone: "Loading..."
     });
 
     {/* Runs backend function "getMe" to get the current user via the token */ }
+    // async function getMe() {
+    //     try {
+    //         const res = await fetch("https://curly-space-doodle-v6wjv49jxxp62px57-3001.app.github.dev/api/me", {
+    //             headers: {
+    //                 "Authorization": `Bearer ${localStorage.getItem("jwt_token")}`
+    //             }
+    //         });
+    //         if (!res.ok) throw new Error("Failed to fetch user");
+    //         const data = await res.json();
+    //         setForm({
+    //             first: data.fname,
+    //             last: data.lname,
+    //             email: data.email,
+    //             phone: data.phone
+    //         });
+    //     } catch (err) {
+    //         console.error(err);
+    //     }
+    // }
+
     async function getMe() {
         try {
-            const res = await fetch("https://curly-space-doodle-v6wjv49jxxp62px57-3001.app.github.dev/api/me", {
-                headers: { //wrong headers??
+            const userId = localStorage.getItem("user-id");
+            const res = await fetch(`https://curly-space-doodle-v6wjv49jxxp62px57-3001.app.github.dev/api/me/${userId}`, {
+                headers: {
                     "Authorization": `Bearer ${localStorage.getItem("jwt_token")}`
                 }
             });
             if (!res.ok) throw new Error("Failed to fetch user");
             const data = await res.json();
             setForm({
-                first: data.fname,
-                last: data.lname,
+                first: data.first,
+                last: data.last,
                 email: data.email,
                 phone: data.phone
             });
