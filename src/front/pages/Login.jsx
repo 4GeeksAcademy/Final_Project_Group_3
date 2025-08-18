@@ -47,10 +47,10 @@ export const Login = () => {
                 <div className="container">
                     <div className="row">
                         <div className="col-2"></div>
-                        <div className="col-8">
-                            <div className="border border-1 border-secondary rounded p-3 d-flex justify-content-center align-items-center" style={{ height: "70vh", boxSizing: "border-box" }}>
-                                <div>
-                                    <h1 className="mx-auto">Log in!</h1>
+                        <div className="col-8 d-flex justify-content-center">
+                            <div className="border border-1 border-secondary rounded p-3 d-flex justify-content-center align-items-center mt-5 mb-5" style={{ height: "65vh", width: "30vw", boxSizing: "border-box" }}>
+                                <div className="d-flex flex-column align-items-center justify-content-center">
+                                    <h1 className="mx-auto mb-3">Log in!</h1>
                                     <div>
                                         <input
                                             className="form-control border-1 border-secondary focus-ring-0 m-1"
@@ -64,12 +64,15 @@ export const Login = () => {
                                             placeholder="password"
                                             onChange={(event) => setPasswordInputValue(event.target.value)}
                                         />{/* onKeyDown={(event) => postTodo(event)} - change this to throw an error if both fields are not full */}
-                                        <Link to="/" className="btn btn-secondary ms-2 text-decoration-none">
-                                            Cancel
-                                        </Link>
-                                        <button type="text" onClick={() => handleLogin(emailInputValue, passwordInputValue)} className="btn btn-success ms-2 text-decoration-none">
-                                            Log in!
-                                        </button>
+                                        <div className="d-flex justify-content-center align-items-center mt-4 mb-3">
+                                            <Link to="/" className="btn btn-secondary ms-2 text-decoration-none">
+                                                Cancel
+                                            </Link>
+                                            <button type="text" onClick={() => handleLogin(emailInputValue, passwordInputValue)} className="btn btn-gold ms-2 text-decoration-none">
+                                                Log in!
+                                            </button>
+                                        </div>
+                                        <span>Don't have an account? <a href="/Signup" className="text-gold">Sign up.</a></span>
                                     </div>
                                 </div>
                             </div>

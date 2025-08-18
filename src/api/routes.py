@@ -62,7 +62,7 @@ def create_token():
 
 
 @api.route("/me", methods=["GET"])
-@jwt_required()
+@jwt_required(optional=True)
 def me():
     user_id = get_jwt_identity()
     user = User.query.get(user_id)

@@ -5,7 +5,7 @@ export const InfoTab = () => {
     {/* add edit functionality (PUT) */ }
     {/* add placeholders from account (GET) */ }
 
-    {/* Sets form to blank */ }
+    {/* sets form to blank */ }
     const [form, setForm] = useState({
         first: "",
         last: "",
@@ -14,19 +14,18 @@ export const InfoTab = () => {
     });
 
     {/* Runs backend function "getMe" to get the current user via the token */ }
-    
     async function getMe() {
         try {
             const res = await fetch("https://curly-space-doodle-v6wjv49jxxp62px57-3001.app.github.dev/api/me", {
-                headers: {
+                headers: { //wrong headers??
                     "Authorization": `Bearer ${localStorage.getItem("jwt_token")}`
                 }
             });
             if (!res.ok) throw new Error("Failed to fetch user");
             const data = await res.json();
             setForm({
-                first: data.first,
-                last: data.last,
+                first: data.fname,
+                last: data.lname,
                 email: data.email,
                 phone: data.phone
             });
