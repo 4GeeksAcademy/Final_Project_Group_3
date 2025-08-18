@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User
+from api.models import db, User, Staff
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
@@ -91,3 +91,29 @@ def get_admins():
         }
         for admin in admins
     ])
+
+@api.route('/staff', methods=['GET'])
+def get_staff():
+    staff = Staff.query.all()
+    return jsonify([s.serialize() for s in staff]), 200
+
+@api.route('/staff', methods=['POST'])
+def add_staff():
+    data = request.get_json()
+
+    # Validate required fields
+    if not data.get("name") or not data.get("role"):
+        return jsonify({"error": "Name and role are required"}), 400
+
+    new_staff = Staff(
+        name=data.get("name"),
+        role=data.get("role"),
+        bio=data.get("bio", ""),
+        photo_url=data.get("photoUrl", ""),
+        booking_url=data.get("bookingUrl", "#")
+    )
+
+    db.session.add(new_staff)
+    db.session.commit()
+
+    return jsonify(new_staff.serialize()), 201 
