@@ -63,3 +63,7 @@
   color: var(--gold);
 }
 
+.nav-tabs .nav-link {
+  color: var(--gold);
+  background-color: transparent;
+}
