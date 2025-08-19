@@ -7,7 +7,6 @@ const PLACEHOLDER_IMG =
     <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'\
       fill='%23999' font-family='Arial' font-size='22'>Staff photo</text></svg>";
 
-// --- Fallback data (Since Backend not available yet I have some sample members) ---
 const FALLBACK_STAFF = [
   {
     id: "temp-1",
@@ -62,7 +61,6 @@ export function OurTeam() {
         if (!res.ok) throw new Error(`API ${res.status}`);
         const data = await res.json();
 
-        // Expecting: [{id, name, role, bio, photoUrl, bookingUrl}]
         setStaff(Array.isArray(data) ? data : []);
       } catch (e) {
         // Fallback staff as placeholders until backend is ready
