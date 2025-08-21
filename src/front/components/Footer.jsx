@@ -13,10 +13,10 @@ export const Footer = () => (
 				{/* Social Media */}
 				<div className="col-md-4 mb-3">
 					<h5>Follow Us</h5>
-					<a href="https://instagram.com" className="text-light mx-2">
+					<a className="btn text-light mx-2" onClick={() => {window.open("https://instagram.com");}}>
 						<i className="fab fa-instagram fa-lg"></i>
 					</a>
-					<a href="https://facebook.com" className="text-light mx-2">
+					<a className="btn text-light mx-2" onClick={() => {window.open("https://facebook.com");}}>
 						<i className="fab fa-facebook fa-lg"></i>
 					</a>
 				</div>
@@ -43,13 +43,13 @@ export const Footer = () => (
 							</a>
 						</li>
 						<li>
-							<a href="#about" className="text-light">
-								About
+							<a href="/Booking" className="text-light">
+								Booking
 							</a>
 						</li>
 						<li>
-							<a href="/Booking" className="text-light">
-								Booking
+							<a href="/Services" className="text-light">
+								Services
 							</a>
 						</li>
 						<li>
