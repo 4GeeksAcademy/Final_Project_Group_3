@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const UsersTab = () => {
     {/* gets for admins, employees, and customers */}
@@ -6,7 +6,7 @@ export const UsersTab = () => {
 	const [employees, setEmployees] = useState([]);
     const [customers, setCustomers] = useState([]);
 
-    {/* ANOTHER 422 error. */}
+    {/* ANOTHER 422 error. // 401 Unauthorized now. */}
 	const getAdmins = () => {
 		fetch("https://curly-space-doodle-v6wjv49jxxp62px57-3001.app.github.dev/api/admins")
 			.then(resp => resp.json())
@@ -23,7 +23,7 @@ export const UsersTab = () => {
             <div className="container">
                 <div>Admin (get from Employee table where role=Admin). Loop below table's tr property for each table entry.
                     <h4>Admins</h4>
-                    <table class="table">
+                    <table className="table">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
@@ -53,7 +53,7 @@ export const UsersTab = () => {
                 </div>
                 <div>Employees (get from Employee table where role=!admin)
                     <h4>Employees</h4>
-                    <table class="table">
+                    <table className="table">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
@@ -83,7 +83,7 @@ export const UsersTab = () => {
                 </div>
                 <div>Customers (get from Users table where role=customer)
                     <h4>Customers</h4>
-                    <table class="table">
+                    <table className="table">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>

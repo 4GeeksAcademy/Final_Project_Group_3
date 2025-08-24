@@ -37,6 +37,8 @@ export const InfoTab = () => {
     async function getMe() {
         try {
             const userId = localStorage.getItem("user-id");
+            {/* dynamic links in frontend fetches | use import.meta.env.VITE_BACKEND_URL, plug via variable */}
+            {/* const backendLink = import.meta.env.VITE_BACKEND_URL */}
             const res = await fetch(`https://curly-space-doodle-v6wjv49jxxp62px57-3001.app.github.dev/api/me/${userId}`, {
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem("jwt_token")}`
@@ -64,7 +66,7 @@ export const InfoTab = () => {
     return (
         <div>
             <div className="border border-1 border-secondary rounded">
-                <div className="row">
+                <div className="row px-5 pb-5 pt-3">
                     <div className="col-6">
                         <div>
                             <div className="input-group mb-3">
