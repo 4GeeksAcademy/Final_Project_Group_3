@@ -4,11 +4,11 @@
 }
 
 /* Hero fixes */
-.hero-ratio { min-height: 55vh; }            /* taller on desktop */
+.hero-ratio { min-height: 55vh; }
 @media (min-width: 992px) { .hero-ratio { min-height: 70vh; } }
 
 .hero-img {
-  object-fit: cover;                          /* crop instead of stretch */
+  object-fit: cover;
 }
 
 .hero-overlay {
@@ -100,11 +100,10 @@
   color: #111;
 }
 
-
-
 .split-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: 2rem;
 }
+

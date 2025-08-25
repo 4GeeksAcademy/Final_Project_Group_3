@@ -220,7 +220,7 @@ export function Services() {
                     src={hero2}
                     alt="nails hero 2"
                     className="w-100 h-100 hero-img position-absolute top-0 start-0"
-                    style={{ opacity: 0.0 }}
+                    style={{ opacity: 0.0, pointerEvents: 'none' }}
                 />
             </header>
 
