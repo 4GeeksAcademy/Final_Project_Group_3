@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import UserTable from "./AccountUsersTables";
-import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 
 export const UsersTab = () => {
     {/* gets for admins, employees, and customers */ }
@@ -33,9 +32,8 @@ const getStaff = () => {
     return (
         <div>
             <div className="container">
-                <div>Admin (get from Employee table where role=Admin). Loop below table's tr property for each table entry.
+                <div>
                     <h4>Admins</h4>
-                    <p> table here </p>
                     <table className="table">
                         <thead>
                             <tr>
@@ -53,7 +51,7 @@ const getStaff = () => {
 						}
                     </table>
                 </div>
-                <div>Employees (get from Employee table where role=!admin)
+                <div>
                     <h4>Employees</h4>
                     <table className="table">
                         <thead>
@@ -72,7 +70,7 @@ const getStaff = () => {
 						}
                     </table>
                 </div>
-                <div>Customers (get from Users table where role=customer)
+                <div>
                     <h4>Customers</h4>
                     
                 </div>

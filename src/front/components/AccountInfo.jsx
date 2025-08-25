@@ -65,7 +65,7 @@ export const InfoTab = () => {
 
     return (
         <div>
-            <div className="border border-1 border-secondary rounded">
+            <div className="">
                 <div className="row px-5 pb-5 pt-3">
                     <div className="col-6">
                         <div>
