@@ -20,7 +20,10 @@ export const Navbar = () => {
 				{/* Invisible div pushes all the buttons over */}
 				<div className="ms-auto"></div>
 				<Link to="/OurTeam" className="text-decoration-none">
-					<span className="navbar-text mb-0 highlight-on-hover">About Us/Contact</span>
+					<span className="navbar-text mb-0 highlight-on-hover">Our Team</span>
+				</Link>
+				<Link to="/Services" className="text-decoration-none">
+					<span className="navbar-text mb-0 ms-3 highlight-on-hover">Services</span>
 				</Link>
 				<Link to="/" className="text-decoration-none">
 					<span className="navbar-text mb-0 ms-3 highlight-on-hover">Booking</span>
