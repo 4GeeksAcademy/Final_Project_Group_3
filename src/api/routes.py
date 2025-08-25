@@ -89,7 +89,6 @@ def me(user_id):
 
 
 @api.route("/admins", methods=["GET"])
-@jwt_required()
 def get_admins():
     admins = User.query.filter_by(role="Admin").all()
     if not admins:
@@ -99,7 +98,10 @@ def get_admins():
         {
             "id": admin.id,
             "first": admin.fname,
-            "email": admin.email
+            "last": admin.lname,
+            "email": admin.email,
+            "phone": admin.phone,
+            "role": admin.role
         }
         for admin in admins
     ])
