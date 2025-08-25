@@ -227,18 +227,22 @@ export function Services() {
             {/* MANICURES */}
             <section id="Manicures" className="py-5">
                 <div className="container">
-                    <div className="split-grid split-grid--reverse">
+                    <div className="row align-items-center">
 
-                        <figure className="split-grid__figure">
-                            <img src={manicuresImg} alt="Manicures" className="img-fluid rounded shadow service-figure" />
-                        </figure>
+                        {/* Left: Image (on mobile this goes first) */}
+                        <div className="col-md-6 order-1 order-md-1">
+                            <img
+                                src={manicuresImg}
+                                alt="Manicures"
+                                className="img-fluid rounded shadow mb-4 mb-md-0"
+                            />
+                        </div>
 
-                        {/* Right: card group */}
-                        <div className="split-grid__content">
+                        {/* Right: Service Cards */}
+                        <div className="col-md-6 order-2 order-md-2">
                             <h3 className="mb-4">Manicures</h3>
-
-                            <div className="row row-cols-1 row-cols-md-3 g-4">
-                                {MANICURES.map(c => (
+                            <div className="row row-cols-1 row-cols-sm-3 g-4">
+                                {MANICURES.map((c) => (
                                     <ServiceCard key={c.title} {...c} />
                                 ))}
                             </div>
