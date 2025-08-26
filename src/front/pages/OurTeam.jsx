@@ -53,7 +53,7 @@ export function OurTeam() {
     async function load() {
       try {
         const base = import.meta.env.VITE_BACKEND_URL;
-        const url = base ? `https://zany-space-bassoon-7v5565x7v4g53xwv6-3001.app.github.dev/api/staff` : null;
+        const url = `${base}/api/staff`
 
         if (!url) throw new Error("No backend URL configured");
 
