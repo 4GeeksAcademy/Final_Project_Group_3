@@ -23,7 +23,7 @@ export const Signup = () => {
 
         try {
             const backendLink = import.meta.env.VITE_BACKEND_URL
-            const res = await fetch('https://automatic-capybara-5g57q6j7w7v6fpxqw-3001.app.github.dev/api/user', {
+            const res = await fetch(`${backendLink}/api/user`, {
                 method: 'POST',
                 body: JSON.stringify(data),
                 headers: { 'Content-Type': 'application/json' }

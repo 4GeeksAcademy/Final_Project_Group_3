@@ -90,7 +90,7 @@ def me(user_id):
 
 @api.route("/admins", methods=["GET"])
 def get_admins():
-    admins = User.query.filter_by(role="Admin").all()
+    admins = User.query.filter(User.roles.contains(["Admin"])).all()
     if not admins:
         return jsonify({"msg": "No admins found"}), 404
 
@@ -101,9 +101,27 @@ def get_admins():
             "last": admin.lname,
             "email": admin.email,
             "phone": admin.phone,
-            "role": admin.role
+            "roles": admin.roles
         }
         for admin in admins
+    ])
+
+@api.route("/customers", methods=["GET"])
+def get_customers():
+    customers = User.query.filter(User.roles.contains(["Customer"])).all()
+    if not customers:
+        return jsonify({"msg": "No customers found"}), 404
+
+    return jsonify([
+        {
+            "id": customer.id,
+            "first": customer.fname,
+            "last": customer.lname,
+            "email": customer.email,
+            "phone": customer.phone,
+            "roles": customer.roles
+        }
+        for customer in customers
     ])
 
 @api.route('/staff', methods=['GET'])

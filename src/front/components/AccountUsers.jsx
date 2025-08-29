@@ -16,19 +16,27 @@ export const UsersTab = () => {
         .then(resp => resp.json())
         .then(dataObj => setAdmins(dataObj))
         .catch(err => console.log(err))
-}
+    }
 
-const getStaff = () => {
+    const getStaff = () => {
     fetch(`${backendLink}/api/staff`)
         .then(resp => resp.json())
         .then(dataObj => setStaff(dataObj))
         .catch(err => console.log(err))
-}
+    }
+
+    const getCustomers = () => {
+    fetch(`${backendLink}/api/customers`)
+        .then(resp => resp.json())
+        .then(dataObj => setCustomers(dataObj))
+        .catch(err => console.log(err))
+    }
 
 
     useEffect(() => { // Runs depending on the dependency array at the end. If empty, runs once on app start, and not when changing pages (to another .jsx file)
         getAdmins(); //runs getAdmins function on first load
-        getStaff(); // 500
+        getStaff();
+        getCustomers();
     }, [])
 
     return (
@@ -74,8 +82,23 @@ const getStaff = () => {
                     </table>
                 </div>
                 <div className="mb-5">
-                    <h4>Customers</h4>
-                    
+                    <h4>Employees</h4>
+                    <table className="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">First</th>
+                                <th scope="col">Last</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Phone</th>
+                            </tr>
+                        </thead>
+                        {
+							customers.map(
+								(char, ind) => < UserTable key={ind} props={char} />
+							)
+						}
+                    </table>
                 </div>
             </div>
         </div>

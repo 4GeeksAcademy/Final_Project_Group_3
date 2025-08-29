@@ -1,5 +1,6 @@
 export const UserTable = ({ props }) => {
     // function to PUT change user's role here
+    // edit roles button brings up modal to change roles for users
 
     return (
         <tbody>
@@ -10,16 +11,9 @@ export const UserTable = ({ props }) => {
                 <td>{props.email}</td>
                 <td>{props.phone}</td>
                 <td>
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {props.role}
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <a class="dropdown-item" href="#">Something else here</a>
-                        </div>
-                    </div>
+                    <button className="btn btn-secondary" type="button">
+                        Edit Roles
+                    </button>
                 </td>
                 {/* modal button brings up a modal of three checkboxes, with a save and cancel button to change a user's roles */}
             </tr>
