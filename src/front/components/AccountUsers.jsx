@@ -10,10 +10,16 @@ export const UsersTab = () => {
     const [customers, setCustomers] = useState([]);
     const backendLink = import.meta.env.VITE_BACKEND_URL
 
-    {/* Change to not show a 404 if there are no admins */ }
     const [loadingAdmins, setLoadingAdmins] = useState(true);
     const [loadingStaff, setLoadingStaff] = useState(true);
     const [loadingCustomers, setLoadingCustomers] = useState(true);
+
+    const refreshAll = () => {
+        getAdmins();
+        getStaff();
+        getCustomers();
+    };
+
 
 
     const getAdmins = () => {
@@ -69,7 +75,7 @@ export const UsersTab = () => {
                         </thead>
                         {
                             admins.map(
-                                (char, ind) => < UserTable key={ind} props={char} />
+                                (char, ind) => < UserTable key={ind} props={char} refresh={refreshAll} />
                             )
                         }
                     </table>
@@ -89,7 +95,7 @@ export const UsersTab = () => {
                         </thead>
                         {
                             staff.map(
-                                (char, ind) => < UserTable key={ind} props={char} />
+                                (char, ind) => < UserTable key={ind} props={char} refresh={refreshAll} />
                             )
                         }
                     </table>
@@ -109,7 +115,7 @@ export const UsersTab = () => {
                         </thead>
                         {
                             customers.map(
-                                (char, ind) => < UserTable key={ind} props={char} />
+                                (char, ind) => < UserTable key={ind} props={char} refresh={refreshAll} />
                             )
                         }
                     </table>

@@ -1,10 +1,33 @@
 import { useState } from "react";
 import RoleModal from "./RoleModal";
 
-export const UserTable = ({ props }) => {
+export const UserTable = ({ props, refresh }) => {
     // function to PUT change user's role here
     const [isOpen, setIsOpen] = useState(false);
     const allRoles = ["Admin", "Staff", "Customer"]
+    const backendLink = import.meta.env.VITE_BACKEND_URL
+
+    const handleSave = (updatedRoles) => {
+        console.log("Saving roles for user:", props.id, updatedRoles);
+
+        fetch(`${backendLink}/api/user/${props.id}/role`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ roles: updatedRoles }),
+        })
+            .then((res) => {
+                if (!res.ok) throw new Error("Failed to update roles");
+                return res.json();
+            })
+            .then((data) => {
+                console.log("Updated user:", data);
+                setIsOpen(false);
+                if (typeof refresh === "function") refresh(); // refresh
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+    };
 
     return (
         <tbody>
@@ -19,7 +42,7 @@ export const UserTable = ({ props }) => {
                     <RoleModal
                         isOpen={isOpen}
                         onClose={() => setIsOpen(false)}
-                        // onSave={handleSave}
+                        onSave={handleSave}
                         user={props}
                         roles={allRoles}
                     />
