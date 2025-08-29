@@ -124,6 +124,32 @@ def get_customers():
         for customer in customers
     ])
 
+@api.route("/user/<int:user_id>/role", methods=["PUT"])
+def update_user_roles(user_id):
+    data = request.get_json()  # parse JSON from body
+    new_roles = data.get("roles")  # expecting { "roles": ["Admin", "Customer"] }
+
+    if not new_roles or not isinstance(new_roles, list):
+        return jsonify({"msg": "Invalid roles format"}), 400
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    # update roles field (assuming it's an ARRAY column)
+    user.roles = new_roles  
+
+    db.session.commit()
+
+    return jsonify({
+        "id": user.id,
+        "first": user.fname,
+        "last": user.lname,
+        "email": user.email,
+        "phone": user.phone,
+        "roles": user.roles
+    }), 200
+
 @api.route('/staff', methods=['GET'])
 def get_staff():
     staff = Staff.query.all()
