@@ -9,7 +9,8 @@ export const Login = () => {
     const { authLogin } = useAuth();
 
     const login = async (email, password) => {
-        const resp = await fetch(`https://curly-space-doodle-v6wjv49jxxp62px57-3001.app.github.dev/api/token`, {
+        const backendLink = import.meta.env.VITE_BACKEND_URL
+        const resp = await fetch(`${backendLink}/api/token`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password })

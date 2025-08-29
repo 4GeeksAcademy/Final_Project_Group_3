@@ -8,17 +8,18 @@ export const UsersTab = () => {
     const [staff, setStaff] = useState([]);
     const [employees, setEmployees] = useState([]);
     const [customers, setCustomers] = useState([]);
+    const backendLink = import.meta.env.VITE_BACKEND_URL
 
-    {/* ANOTHER 422 error. // 401 Unauthorized now. */ }
+    {/* Change to not show a 404 if there are no admins */ }
     const getAdmins = () => {
-    fetch("https://curly-space-doodle-v6wjv49jxxp62px57-3001.app.github.dev/api/admins")
+    fetch(`${backendLink}/api/admins`)
         .then(resp => resp.json())
         .then(dataObj => setAdmins(dataObj))
         .catch(err => console.log(err))
 }
 
 const getStaff = () => {
-    fetch("https://curly-space-doodle-v6wjv49jxxp62px57-3001.app.github.dev/api/staff")
+    fetch(`${backendLink}/api/staff`)
         .then(resp => resp.json())
         .then(dataObj => setStaff(dataObj))
         .catch(err => console.log(err))
@@ -33,9 +34,8 @@ const getStaff = () => {
     return (
         <div>
             <div className="container">
-                <div>Admin (get from Employee table where role=Admin). Loop below table's tr property for each table entry.
+                <div>
                     <h4>Admins</h4>
-                    <p> table here </p>
                     <table className="table">
                         <thead>
                             <tr>
@@ -44,6 +44,7 @@ const getStaff = () => {
                                 <th scope="col">Last</th>
                                 <th scope="col">Email</th>
                                 <th scope="col">Phone</th>
+                                <th scope="col">Role</th>
                             </tr>
                         </thead>
                         {
@@ -53,7 +54,7 @@ const getStaff = () => {
 						}
                     </table>
                 </div>
-                <div>Employees (get from Employee table where role=!admin)
+                <div>
                     <h4>Employees</h4>
                     <table className="table">
                         <thead>
@@ -72,7 +73,7 @@ const getStaff = () => {
 						}
                     </table>
                 </div>
-                <div>Customers (get from Users table where role=customer)
+                <div className="mb-5">
                     <h4>Customers</h4>
                     
                 </div>
