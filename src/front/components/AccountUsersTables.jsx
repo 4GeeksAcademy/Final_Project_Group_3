@@ -1,6 +1,10 @@
+import { useState } from "react";
+import RoleModal from "./RoleModal";
+
 export const UserTable = ({ props }) => {
     // function to PUT change user's role here
-    // edit roles button brings up modal to change roles for users
+    const [isOpen, setIsOpen] = useState(false);
+    const allRoles = ["Admin", "Staff", "Customer"]
 
     return (
         <tbody>
@@ -11,9 +15,14 @@ export const UserTable = ({ props }) => {
                 <td>{props.email}</td>
                 <td>{props.phone}</td>
                 <td>
-                    <button className="btn btn-secondary" type="button">
-                        Edit Roles
-                    </button>
+                    <button className="btn btn-secondary" type="button" onClick={() => setIsOpen(true)}>Edit Roles</button>
+                    <RoleModal
+                        isOpen={isOpen}
+                        onClose={() => setIsOpen(false)}
+                        // onSave={handleSave}
+                        user={props}
+                        roles={allRoles}
+                    />
                 </td>
                 {/* modal button brings up a modal of three checkboxes, with a save and cancel button to change a user's roles */}
             </tr>
