@@ -38,8 +38,8 @@ export const InfoTab = () => {
         try {
             const userId = localStorage.getItem("user-id");
             {/* dynamic links in frontend fetches | use import.meta.env.VITE_BACKEND_URL, plug via variable */}
-            {/* const backendLink = import.meta.env.VITE_BACKEND_URL */}
-            const res = await fetch(`https://curly-space-doodle-v6wjv49jxxp62px57-3001.app.github.dev/api/me/${userId}`, {
+            const backendLink = import.meta.env.VITE_BACKEND_URL
+            const res = await fetch(`${backendLink}/api/me/${userId}`, {
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem("jwt_token")}`
                 }

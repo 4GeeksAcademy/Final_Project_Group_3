@@ -1,19 +1,26 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import String, Boolean, Integer, Text
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.dialects.postgresql import ARRAY
 
 db = SQLAlchemy()
+
 
 class User(db.Model):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(primary_key=True)
-    email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
-    password: Mapped[str] = mapped_column(String(120),nullable=False)
-    phone: Mapped[str] = mapped_column(String(120),nullable=False) # maybe change to int later (check api)
-    fname: Mapped[str] = mapped_column(String(120),nullable=False)
-    lname: Mapped[str] = mapped_column(String(120),nullable=False)
-    role: Mapped[str] = mapped_column(String(20), nullable=False, default="Customer")
-
+    email: Mapped[str] = mapped_column(
+        String(120), unique=True, nullable=False)
+    password: Mapped[str] = mapped_column(String(120), nullable=False)
+    # maybe change to int later (check api)
+    phone: Mapped[str] = mapped_column(String(120), nullable=False)
+    fname: Mapped[str] = mapped_column(String(120), nullable=False)
+    lname: Mapped[str] = mapped_column(String(120), nullable=False)
+    roles: Mapped[list[str]] = mapped_column(
+        ARRAY(String(20)),
+        nullable=False,
+        default=["Customer"]
+    )
 
     def serialize(self):
         return {
@@ -21,10 +28,12 @@ class User(db.Model):
             "first": self.fname,
             "last": self.lname,
             "email": self.email,
-            "phone": self.phone
+            "phone": self.phone,
+            "roles": self.roles
             # do not serialize the password, its a security breach
         }
-    
+
+
 class Staff(db.Model):
     __tablename__ = "staff"
 

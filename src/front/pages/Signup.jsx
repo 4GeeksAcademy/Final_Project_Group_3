@@ -22,7 +22,8 @@ export const Signup = () => {
         };
 
         try {
-            const res = await fetch('https://curly-space-doodle-v6wjv49jxxp62px57-3001.app.github.dev/api/user', {
+            const backendLink = import.meta.env.VITE_BACKEND_URL
+            const res = await fetch(`${backendLink}/api/user`, {
                 method: 'POST',
                 body: JSON.stringify(data),
                 headers: { 'Content-Type': 'application/json' }
