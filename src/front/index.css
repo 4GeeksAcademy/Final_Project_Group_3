@@ -106,3 +106,15 @@
   align-items: center;
   gap: 2rem;
 }
+
+/* Target all checked checkboxes */
+.form-check-input:checked {
+  background-color: var(--gold) !important;   /* fill color */
+  border-color: var(--gold) !important;       /* border */
+}
+
+/* Optional: focus ring (instead of the default blue shadow) */
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.5); /* gold glow */
+  border-color: var(--gold);
+}
