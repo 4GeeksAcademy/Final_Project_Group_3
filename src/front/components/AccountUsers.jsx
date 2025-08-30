@@ -62,63 +62,72 @@ export const UsersTab = () => {
             <div className="container">
                 <div>
                     <h4>Admins</h4>
-                    <table className="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">ID</th>
-                                <th scope="col">First</th>
-                                <th scope="col">Last</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Phone</th>
-                                <th scope="col">Role</th>
-                            </tr>
-                        </thead>
-                        {
-                            admins.map(
-                                (char, ind) => < UserTable key={ind} props={char} refresh={refreshAll} />
-                            )
-                        }
-                    </table>
+                    {loadingAdmins ? (
+                        <div className="d-flex align-items-center justify-content-center text-secondary">Loading...</div>
+                    ) : (
+                        <table className="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">First</th>
+                                    <th scope="col">Last</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Phone</th>
+                                    <th scope="col">Role</th>
+                                </tr>
+                            </thead>
+                            {
+                                admins.map(
+                                    (char, ind) => < UserTable key={ind} props={char} refresh={refreshAll} />
+                                )
+                            }
+                        </table>)}
                 </div>
-                <div>
+                <div className="mt-5">
                     <h4>Employees</h4>
-                    <table className="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">ID</th>
-                                <th scope="col">First</th>
-                                <th scope="col">Last</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Phone</th>
-                                <th scope="col">Role</th>
-                            </tr>
-                        </thead>
-                        {
-                            staff.map(
-                                (char, ind) => < UserTable key={ind} props={char} refresh={refreshAll} />
-                            )
-                        }
-                    </table>
+                    {loadingStaff ? (
+                        <div className="d-flex align-items-center justify-content-center text-secondary">Loading...</div>
+                    ) : (
+                        <table className="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">First</th>
+                                    <th scope="col">Last</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Phone</th>
+                                    <th scope="col">Role</th>
+                                </tr>
+                            </thead>
+                            {
+                                staff.map(
+                                    (char, ind) => < UserTable key={ind} props={char} refresh={refreshAll} />
+                                )
+                            }
+                        </table>)}
                 </div>
-                <div className="mb-5">
+                <div className="my-5">
                     <h4>Customers</h4>
-                    <table className="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">ID</th>
-                                <th scope="col">First</th>
-                                <th scope="col">Last</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Phone</th>
-                                <th scope="col">Role</th>
-                            </tr>
-                        </thead>
-                        {
-                            customers.map(
-                                (char, ind) => < UserTable key={ind} props={char} refresh={refreshAll} />
-                            )
-                        }
-                    </table>
+                    {loadingCustomers ? (
+                        <div className="d-flex align-items-center justify-content-center text-secondary">Loading...</div>
+                    ) : (
+                        <table className="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">First</th>
+                                    <th scope="col">Last</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Phone</th>
+                                    <th scope="col">Role</th>
+                                </tr>
+                            </thead>
+                            {
+                                customers.map(
+                                    (char, ind) => < UserTable key={ind} props={char} refresh={refreshAll} />
+                                )
+                            }
+                        </table>)}
                 </div>
             </div>
         </div>

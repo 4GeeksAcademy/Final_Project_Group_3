@@ -8,7 +8,7 @@ export const Account = () => {
   const [active, setActive] = useState("info");
 
   return (
-    <>
+    <div className="border border-0" style={{margin: "0% 10% 5% 10%"}}>
       <ul className="nav nav-tabs">
         <li className="nav-item">
           <button className={`nav-link ${active === "info" && "active"}`} onClick={() => setActive("info")}>
@@ -32,40 +32,40 @@ export const Account = () => {
         {active === "users" && <UsersTab />}
         {active === "history" && <HistoryTab />}
       </div>
-    </>
+    </div>
   );
 };
 
 
-export const testsample = () => {
+// export const testsample = () => {
 
-    return (
-        <div className="bg-light">
-            <div className="container-fluid">
-                <div className="row">
-                    <div className="col-1 bg-light"></div>
-                    <div className="col-10">
-                        <ul className="nav nav-tabs">
-                            <li className="nav-item">
-                                <button className={`nav-link ${active === "Info" && "active"}`} onClick={() => setActive("Info")}>
-                                    Info
-                                </button>
-                            </li>
-                            <li className="nav-item">
-                                <button className={`nav-link ${active === "Users" && "active"}`} onClick={() => setActive("Users")}>
-                                    Users
-                                </button>
-                            </li>
-                            <li className="nav-item">
-                                <button className={`nav-link ${active === "History" && "active"}`} onClick={() => setActive("History")}>
-                                    History
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                    <div className="col-1 bg-light"></div>
-                </div>
-            </div>
-        </div>
-    )
-}
+//     return (
+//         <div className="bg-light">
+//             <div className="container-fluid">
+//                 <div className="row">
+//                     <div className="col-1 bg-light"></div>
+//                     <div className="col-10">
+//                         <ul className="nav nav-tabs">
+//                             <li className="nav-item">
+//                                 <button className={`nav-link ${active === "Info" && "active"}`} onClick={() => setActive("Info")}>
+//                                     Info
+//                                 </button>
+//                             </li>
+//                             <li className="nav-item">
+//                                 <button className={`nav-link ${active === "Users" && "active"}`} onClick={() => setActive("Users")}>
+//                                     Users
+//                                 </button>
+//                             </li>
+//                             <li className="nav-item">
+//                                 <button className={`nav-link ${active === "History" && "active"}`} onClick={() => setActive("History")}>
+//                                     History
+//                                 </button>
+//                             </li>
+//                         </ul>
+//                     </div>
+//                     <div className="col-1 bg-light"></div>
+//                 </div>
+//             </div>
+//         </div>
+//     )
+// }
