@@ -63,9 +63,7 @@ export const UsersTab = () => {
                 <div>
                     <h4>Admins</h4>
                     {loadingAdmins ? (
-                        <div className="d-flex align-items-center justify-content-center">
-                            <div className="loader" />
-                        </div>
+                        <div className="d-flex align-items-center justify-content-center text-secondary">Loading...</div>
                     ) : (
                         <table className="table">
                             <thead>
@@ -88,9 +86,7 @@ export const UsersTab = () => {
                 <div className="mt-5">
                     <h4>Employees</h4>
                     {loadingStaff ? (
-                        <div className="d-flex align-items-center justify-content-center">
-                            <div className="loader" />
-                        </div>
+                        <div className="d-flex align-items-center justify-content-center text-secondary">Loading...</div>
                     ) : (
                         <table className="table">
                             <thead>
@@ -113,9 +109,7 @@ export const UsersTab = () => {
                 <div className="my-5">
                     <h4>Customers</h4>
                     {loadingCustomers ? (
-                        <div className="d-flex align-items-center justify-content-center">
-                            <div className="loader" />
-                        </div>
+                        <div className="d-flex align-items-center justify-content-center text-secondary">Loading...</div>
                     ) : (
                         <table className="table">
                             <thead>

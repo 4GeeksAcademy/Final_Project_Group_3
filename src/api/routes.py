@@ -150,38 +150,6 @@ def update_user_roles(user_id):
         "roles": user.roles
     }), 200
 
-@api.route("/user/<int:user_id>", methods=["PUT"])
-def update_user_info(user_id):
-    data = request.get_json()
-
-    first = data.get("first")
-    last = data.get("last")
-    phone = data.get("phone")
-    email = data.get("email")
-
-    if not all ([first, last, phone, email]):
-        return jsonify({"msg": "Error: All fields required"}), 400
-
-    user = User.query.get(user_id)
-    if not user:
-        return jsonify({"msg": "User not found"}), 404
-
-    user.fname = first
-    user.lname = last
-    user.phone = phone
-    user.email = email
-
-    db.session.commit()
-
-    return jsonify({
-        "id": user.id,
-        "first": user.fname,
-        "last": user.lname,
-        "email": user.email,
-        "phone": user.phone,
-        "roles": user.roles
-    }), 200
-
 @api.route('/staff', methods=['GET'])
 def get_staff():
     staff = Staff.query.all()
