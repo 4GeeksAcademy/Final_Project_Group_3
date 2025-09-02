@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import UserEditToast from "./UserEditToast";
 
 export const InfoTab = () => {
-    // toast (success message)
-    const [showToast, setShowToast] = useState(false);
 
-    // placeholder values
+    {/* add edit functionality (PUT) */ }
+    {/* add placeholders from account (GET) */ }
+
+    {/* placeholder values */ }
     const [form, setForm] = useState({
         first: "Loading...",
         last: "Loading...",
@@ -13,10 +13,31 @@ export const InfoTab = () => {
         phone: "Loading..."
     });
 
+    {/* Runs backend function "getMe" to get the current user via the token */ }
+    // async function getMe() {
+    //     try {
+    //         const res = await fetch("https://curly-space-doodle-v6wjv49jxxp62px57-3001.app.github.dev/api/me", {
+    //             headers: {
+    //                 "Authorization": `Bearer ${localStorage.getItem("jwt_token")}`
+    //             }
+    //         });
+    //         if (!res.ok) throw new Error("Failed to fetch user");
+    //         const data = await res.json();
+    //         setForm({
+    //             first: data.fname,
+    //             last: data.lname,
+    //             email: data.email,
+    //             phone: data.phone
+    //         });
+    //     } catch (err) {
+    //         console.error(err);
+    //     }
+    // }
+
     async function getMe() {
         try {
             const userId = localStorage.getItem("user-id");
-            {/* dynamic links in frontend fetches | use import.meta.env.VITE_BACKEND_URL, plug via variable */ }
+            {/* dynamic links in frontend fetches | use import.meta.env.VITE_BACKEND_URL, plug via variable */}
             const backendLink = import.meta.env.VITE_BACKEND_URL
             const res = await fetch(`${backendLink}/api/me/${userId}`, {
                 headers: {
@@ -31,44 +52,10 @@ export const InfoTab = () => {
                 email: data.email,
                 phone: data.phone
             });
-            setShowToast(true);
-            setTimeout(() => setShowToast(false), 3000);
         } catch (err) {
             console.error(err);
         }
     }
-
-    const editMe = async () => {
-        try {
-            const backendLink = import.meta.env.VITE_BACKEND_URL;
-            const userId = localStorage.getItem("user-id");
-
-            const res = await fetch(`${backendLink}/api/user/${userId}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    first: form.first,
-                    last: form.last,
-                    email: form.email,
-                    phone: form.phone
-                })
-            });
-
-            if (!res.ok) throw new Error("Failed to update user");
-            const data = await res.json();
-            console.log("Updated user:", data);
-
-            // update form with latest server response
-            setForm({
-                first: data.first,
-                last: data.last,
-                email: data.email,
-                phone: data.phone
-            });
-        } catch (err) {
-            console.error("PUT failed:", err);
-        }
-    };
 
     useEffect(() => {
         getMe();
@@ -78,7 +65,6 @@ export const InfoTab = () => {
 
     return (
         <div>
-            <UserEditToast show={showToast} onClose={() => setShowToast(false)} message="Profile updated!" />
             <div className="border border-1 border-secondary rounded">
                 <div className="row px-5 pb-5 pt-3">
                     <div className="col-6">
@@ -128,7 +114,7 @@ export const InfoTab = () => {
                     <div className="d-flex">
                         <div className="ms-auto">
                             <button className="btn btn-secondary">Cancel</button>
-                            <button className="btn btn-gold ms-2 me-5" onClick={editMe}>Save</button>
+                            <button className="btn btn-gold ms-2 me-5">Save</button>
                         </div>
                     </div>
                 </div>
