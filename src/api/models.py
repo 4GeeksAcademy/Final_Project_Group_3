@@ -16,11 +16,11 @@ class User(db.Model):
     phone: Mapped[str] = mapped_column(String(120), nullable=False)
     fname: Mapped[str] = mapped_column(String(120), nullable=False)
     lname: Mapped[str] = mapped_column(String(120), nullable=False)
-    roles: Mapped[list[str]] = mapped_column(
-        ARRAY(String(20)),
-        nullable=False,
-        default=["Customer"]
-    )
+    role: Mapped[str] = mapped_column(String(20), nullable=False, default="Customer")
+
+    bio: Mapped[str]       = mapped_column(Text, nullable=True, default="")
+    photo_url: Mapped[str] = mapped_column(String(500), nullable=True)
+    booking_url: Mapped[str] = mapped_column(String(500), nullable=True)
 
     def serialize(self):
         return {
@@ -29,27 +29,29 @@ class User(db.Model):
             "last": self.lname,
             "email": self.email,
             "phone": self.phone,
-            "roles": self.roles
+            "bio": self.bio or "",
+            "photoUrl": self.photo_url or "",
+            "bookingUrl": self.booking_url or "",
             # do not serialize the password, its a security breach
         }
 
 
-class Staff(db.Model):
-    __tablename__ = "staff"
+# class Staff(db.Model):
+#     __tablename__ = "staff"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String(120), nullable=False)
-    role: Mapped[str] = mapped_column(String(120), nullable=False)
-    bio: Mapped[str] = mapped_column(Text, nullable=False, default="")
-    photo_url: Mapped[str] = mapped_column(String(500), nullable=True)
-    booking_url: Mapped[str] = mapped_column(String(500), nullable=True)
+#     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+#     name: Mapped[str] = mapped_column(String(120), nullable=False)
+#     role: Mapped[str] = mapped_column(String(120), nullable=False)
+#     bio: Mapped[str] = mapped_column(Text, nullable=False, default="")
+#     photo_url: Mapped[str] = mapped_column(String(500), nullable=True)
+#     booking_url: Mapped[str] = mapped_column(String(500), nullable=True)
 
-    def serialize(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "role": self.role,
-            "bio": self.bio,
-            "photoUrl": self.photo_url,
-            "bookingUrl": self.booking_url,
-        }
+#     def serialize(self):
+#         return {
+#             "id": self.id,
+#             "name": self.name,
+#             "role": self.role,
+#             "bio": self.bio,
+#             "photoUrl": self.photo_url,
+#             "bookingUrl": self.booking_url,
+#         }

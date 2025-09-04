@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Staff
+from api.models import db, User
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
@@ -29,6 +29,15 @@ def sign_up():
     body = request.json  # request.json gives body in dictionary format
     print(body)
 
+    email = body.get("email")
+    password = body.get("password")
+    first = body.get("first")
+    last = body.get("last")
+
+    if not all([email, password, first, last]):
+        return jsonify({"msg": "Missing required fields"}), 400
+
+
     user = User(email=body["email"], password=body["password"],
                 phone=body["phone"], fname=body["first"], lname=body["last"])
     db.session.add(user)
@@ -39,6 +48,49 @@ def sign_up():
         return "recieved", 200
     else:
         return "Error, user could not be created", 500
+    
+@api.route('/staff', methods=['GET'])
+def get_staff():
+    staff_users = User.query.filter_by(role="Staff").all()
+    return jsonify([s.serialize() for s in staff_users]), 200
+
+@api.route('/staff', methods=['POST'])
+def create_staff():
+    body = request.get_json(force=True)
+    if body is None:
+        return jsonify({"msg": "Invalid request, JSON required"}), 400
+
+    email = body.get("email")
+    password = body.get("password")
+    fname = body.get("first")
+    lname = body.get("last")
+    phone = body.get("phone")
+    bio = body.get("bio", "")
+    photo_url = body.get("photo_url")
+    booking_url = body.get("booking_url")
+
+    if not all([email, password, fname, lname]):
+        return jsonify({"msg": "Missing required fields"}), 400
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({"msg": "User already exists"}), 409
+
+    staff_user = User(
+        email=email,
+        password=password,
+        fname=fname,
+        lname=lname,
+        phone=phone,
+        bio=bio,
+        photo_url=photo_url,
+        booking_url=booking_url,
+        role="Staff"
+    )
+
+    db.session.add(staff_user)
+    db.session.commit()
+
+    return jsonify(staff_user.serialize()), 201
 
 
 @api.route("/token", methods=["POST"])
@@ -182,28 +234,23 @@ def update_user_info(user_id):
         "roles": user.roles
     }), 200
 
-@api.route('/staff', methods=['GET'])
-def get_staff():
-    staff = Staff.query.all()
-    return jsonify([s.serialize() for s in staff]), 200
+# @api.route('/staff', methods=['POST'])
+# def add_staff():
+#     data = request.get_json()
 
-@api.route('/staff', methods=['POST'])
-def add_staff():
-    data = request.get_json()
+#     # Validate required fields
+#     if not data.get("name") or not data.get("role"):
+#         return jsonify({"error": "Name and role are required"}), 400
 
-    # Validate required fields
-    if not data.get("name") or not data.get("role"):
-        return jsonify({"error": "Name and role are required"}), 400
+#     new_staff = Staff(
+#         name=data.get("name"),
+#         role=data.get("role"),
+#         bio=data.get("bio", ""),
+#         photo_url=data.get("photoUrl", ""),
+#         booking_url=data.get("bookingUrl", "#")
+#     )
 
-    new_staff = Staff(
-        name=data.get("name"),
-        role=data.get("role"),
-        bio=data.get("bio", ""),
-        photo_url=data.get("photoUrl", ""),
-        booking_url=data.get("bookingUrl", "#")
-    )
+#     db.session.add(new_staff)
+#     db.session.commit()
 
-    db.session.add(new_staff)
-    db.session.commit()
-
-    return jsonify(new_staff.serialize()), 201 
+#     return jsonify(new_staff.serialize()), 201 

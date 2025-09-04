@@ -97,18 +97,18 @@ export function OurTeam() {
 }
 
 // --- Card for a staff member ---
-function StaffCard({ name, role, bio, photoUrl, bookingUrl }) {
+function StaffCard({ first, last, role, bio, photoUrl, bookingUrl }) {
   return (
     <div className="card h-100 shadow-sm team-card hover-lift">
       <div className="ratio ratio-4x3">
         <img
           src={photoUrl || PLACEHOLDER_IMG}
-          alt={name}
+          alt={first}
           className="w-100 h-100 object-cover rounded-top"
         />
       </div>
       <div className="card-body">
-        <h5 className="card-title mb-1">{name}</h5>
+        <h5 className="card-title mb-1">{first} {last}</h5>
         <p className="text-gold small mb-2">{role}</p>
         <p className="card-text text-muted mb-3">{bio}</p>
 
