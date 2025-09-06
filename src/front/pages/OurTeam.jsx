@@ -13,7 +13,7 @@ const FALLBACK_STAFF = [
     name: "Ava Nguyen",
     role: "Senior Nail Artist",
     bio: "Specializes in gel finishes and intricate hand-painted designs. 6+ years experience.",
-    photoUrl: PLACEHOLDER_IMG,
+    photoUrl: "https://img.freepik.com/premium-photo/close-up-beautiful-asian-woman-beauty-blogger_1258-31223.jpg",
     bookingUrl: "#",
   },
   {
@@ -21,7 +21,7 @@ const FALLBACK_STAFF = [
     name: "Marcos Cruz",
     role: "Acrylic & Sculpting",
     bio: "Known for durable acrylic sets and custom shapes. Loves bold colors.",
-    photoUrl: PLACEHOLDER_IMG,
+    photoUrl: "https://plus.unsplash.com/premium_photo-1689530775582-83b8abdb5020?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cmFuZG9tJTIwcGVyc29ufGVufDB8fDB8fHww",
     bookingUrl: "#",
   },
   {
@@ -29,7 +29,7 @@ const FALLBACK_STAFF = [
     name: "Jin Park",
     role: "Dip Powder Expert",
     bio: "Lightweight, natural-looking finishes with careful prep for nail health.",
-    photoUrl: PLACEHOLDER_IMG,
+    photoUrl: "https://images.pexels.com/photos/3761521/pexels-photo-3761521.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
     bookingUrl: "#",
   },
   {
@@ -37,7 +37,7 @@ const FALLBACK_STAFF = [
     name: "Sofia Rivera",
     role: "Spa Pedicures",
     bio: "Therapeutic pedicures with a focus on massage and relaxation.",
-    photoUrl: PLACEHOLDER_IMG,
+    photoUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cmFuZG9tJTIwcGVvcGxlfGVufDB8fDB8fHww",
     bookingUrl: "#",
   },
 ];
@@ -97,18 +97,18 @@ export function OurTeam() {
 }
 
 // --- Card for a staff member ---
-function StaffCard({ name, role, bio, photoUrl, bookingUrl }) {
+function StaffCard({ first, last, role, bio, photoUrl, bookingUrl }) {
   return (
     <div className="card h-100 shadow-sm team-card hover-lift">
       <div className="ratio ratio-4x3">
         <img
           src={photoUrl || PLACEHOLDER_IMG}
-          alt={name}
+          alt={first}
           className="w-100 h-100 object-cover rounded-top"
         />
       </div>
       <div className="card-body">
-        <h5 className="card-title mb-1">{name}</h5>
+        <h5 className="card-title mb-1">{first} {last}</h5>
         <p className="text-gold small mb-2">{role}</p>
         <p className="card-text text-muted mb-3">{bio}</p>
 
