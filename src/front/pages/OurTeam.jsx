@@ -13,7 +13,7 @@ const FALLBACK_STAFF = [
     name: "Ava Nguyen",
     role: "Senior Nail Artist",
     bio: "Specializes in gel finishes and intricate hand-painted designs. 6+ years experience.",
-    photoUrl: PLACEHOLDER_IMG,
+    photoUrl: "https://img.freepik.com/premium-photo/close-up-beautiful-asian-woman-beauty-blogger_1258-31223.jpg",
     bookingUrl: "#",
   },
   {
@@ -21,7 +21,7 @@ const FALLBACK_STAFF = [
     name: "Marcos Cruz",
     role: "Acrylic & Sculpting",
     bio: "Known for durable acrylic sets and custom shapes. Loves bold colors.",
-    photoUrl: PLACEHOLDER_IMG,
+    photoUrl: "https://plus.unsplash.com/premium_photo-1689530775582-83b8abdb5020?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cmFuZG9tJTIwcGVyc29ufGVufDB8fDB8fHww",
     bookingUrl: "#",
   },
   {
@@ -29,7 +29,7 @@ const FALLBACK_STAFF = [
     name: "Jin Park",
     role: "Dip Powder Expert",
     bio: "Lightweight, natural-looking finishes with careful prep for nail health.",
-    photoUrl: PLACEHOLDER_IMG,
+    photoUrl: "https://images.pexels.com/photos/3761521/pexels-photo-3761521.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
     bookingUrl: "#",
   },
   {
@@ -37,7 +37,7 @@ const FALLBACK_STAFF = [
     name: "Sofia Rivera",
     role: "Spa Pedicures",
     bio: "Therapeutic pedicures with a focus on massage and relaxation.",
-    photoUrl: PLACEHOLDER_IMG,
+    photoUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cmFuZG9tJTIwcGVvcGxlfGVufDB8fDB8fHww",
     bookingUrl: "#",
   },
 ];

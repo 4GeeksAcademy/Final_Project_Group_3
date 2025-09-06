@@ -29,6 +29,7 @@ class User(db.Model):
             "last": self.lname,
             "email": self.email,
             "phone": self.phone,
+            "role": self.role,
             "bio": self.bio or "",
             "photoUrl": self.photo_url or "",
             "bookingUrl": self.booking_url or "",
