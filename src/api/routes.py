@@ -2,15 +2,34 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Staff
+from api.models import db, User
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from functools import wraps
 
 api = Blueprint('api', __name__)
 
 # Allow CORS requests to this API
 CORS(api)
+
+def require_roles(*allowed_roles):
+    """
+    checks the logged-in user's role against allowed_roles.
+    """
+    def decorator(fn):
+        @wraps(fn)
+        @jwt_required()
+        def wrapper(*args, **kwargs):
+            user_id = get_jwt_identity()
+            user = User.query.get(user_id)
+            if not user:
+                return jsonify({"msg": "User not found"}), 404
+            if user.role not in allowed_roles:
+                return jsonify({"msg": "Forbidden: insufficient role"}), 403
+            return fn(*args, **kwargs)
+        return wrapper
+    return decorator
 
 
 @api.route('/hello', methods=['POST', 'GET'])
@@ -29,6 +48,15 @@ def sign_up():
     body = request.json  # request.json gives body in dictionary format
     print(body)
 
+    email = body.get("email")
+    password = body.get("password")
+    first = body.get("first")
+    last = body.get("last")
+
+    if not all([email, password, first, last]):
+        return jsonify({"msg": "Missing required fields"}), 400
+
+
     user = User(email=body["email"], password=body["password"],
                 phone=body["phone"], fname=body["first"], lname=body["last"])
     db.session.add(user)
@@ -39,6 +67,50 @@ def sign_up():
         return "recieved", 200
     else:
         return "Error, user could not be created", 500
+    
+@api.route('/staff', methods=['GET'])
+def get_staff():
+    staff_users = User.query.filter_by(role="Staff").all()
+    return jsonify([s.serialize() for s in staff_users]), 200
+
+@api.route('/staff', methods=['POST'])
+@require_roles("Admin")
+def create_staff():
+    body = request.get_json(force=True)
+    if body is None:
+        return jsonify({"msg": "Invalid request, JSON required"}), 400
+
+    email = body.get("email")
+    password = body.get("password")
+    fname = body.get("first")
+    lname = body.get("last")
+    phone = body.get("phone")
+    bio = body.get("bio", "")
+    photo_url = body.get("photo_url")
+    booking_url = body.get("booking_url")
+
+    if not all([email, password, fname, lname]):
+        return jsonify({"msg": "Missing required fields"}), 400
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({"msg": "User already exists"}), 409
+
+    staff_user = User(
+        email=email,
+        password=password,
+        fname=fname,
+        lname=lname,
+        phone=phone,
+        bio=bio,
+        photo_url=photo_url,
+        booking_url=booking_url,
+        role="Staff"
+    )
+
+    db.session.add(staff_user)
+    db.session.commit()
+
+    return jsonify(staff_user.serialize()), 201
 
 
 @api.route("/token", methods=["POST"])
@@ -90,7 +162,7 @@ def me(user_id):
 
 @api.route("/admins", methods=["GET"])
 def get_admins():
-    admins = User.query.filter(User.roles.contains(["Admin"])).all()
+    admins = User.query.filter(User.role == "Admin").all()
     if not admins:
         return jsonify({"msg": "No admins found"}), 404
 
@@ -101,14 +173,14 @@ def get_admins():
             "last": admin.lname,
             "email": admin.email,
             "phone": admin.phone,
-            "roles": admin.roles
+            "role": admin.role
         }
         for admin in admins
     ])
 
 @api.route("/customers", methods=["GET"])
 def get_customers():
-    customers = User.query.filter(User.roles.contains(["Customer"])).all()
+    customers = User.query.filter(User.role == "Customer").all()
     if not customers:
         return jsonify({"msg": "No customers found"}), 404
 
@@ -119,25 +191,25 @@ def get_customers():
             "last": customer.lname,
             "email": customer.email,
             "phone": customer.phone,
-            "roles": customer.roles
+            "role": customer.role
         }
         for customer in customers
     ])
 
 @api.route("/user/<int:user_id>/role", methods=["PUT"])
-def update_user_roles(user_id):
+def update_user_role(user_id):
     data = request.get_json()  # parse JSON from body
-    new_roles = data.get("roles")  # expecting { "roles": ["Admin", "Customer"] }
+    new_role = data.get("role")  # expecting { "role": ["Admin", "Customer"] }
 
-    if not new_roles or not isinstance(new_roles, list):
-        return jsonify({"msg": "Invalid roles format"}), 400
+    if not new_role or not isinstance(new_role, list):
+        return jsonify({"msg": "Invalid role format"}), 400
 
     user = User.query.get(user_id)
     if not user:
         return jsonify({"msg": "User not found"}), 404
 
-    # update roles field (assuming it's an ARRAY column)
-    user.roles = new_roles  
+    # update role field (assuming it's an ARRAY column)
+    user.role = new_role  
 
     db.session.commit()
 
@@ -147,7 +219,7 @@ def update_user_roles(user_id):
         "last": user.lname,
         "email": user.email,
         "phone": user.phone,
-        "roles": user.roles
+        "role": user.role
     }), 200
 
 @api.route("/user/<int:user_id>", methods=["PUT"])
@@ -179,31 +251,26 @@ def update_user_info(user_id):
         "last": user.lname,
         "email": user.email,
         "phone": user.phone,
-        "roles": user.roles
+        "role": user.role
     }), 200
 
-@api.route('/staff', methods=['GET'])
-def get_staff():
-    staff = Staff.query.all()
-    return jsonify([s.serialize() for s in staff]), 200
+# @api.route('/staff', methods=['POST'])
+# def add_staff():
+#     data = request.get_json()
 
-@api.route('/staff', methods=['POST'])
-def add_staff():
-    data = request.get_json()
+#     # Validate required fields
+#     if not data.get("name") or not data.get("role"):
+#         return jsonify({"error": "Name and role are required"}), 400
 
-    # Validate required fields
-    if not data.get("name") or not data.get("role"):
-        return jsonify({"error": "Name and role are required"}), 400
+#     new_staff = Staff(
+#         name=data.get("name"),
+#         role=data.get("role"),
+#         bio=data.get("bio", ""),
+#         photo_url=data.get("photoUrl", ""),
+#         booking_url=data.get("bookingUrl", "#")
+#     )
 
-    new_staff = Staff(
-        name=data.get("name"),
-        role=data.get("role"),
-        bio=data.get("bio", ""),
-        photo_url=data.get("photoUrl", ""),
-        booking_url=data.get("bookingUrl", "#")
-    )
+#     db.session.add(new_staff)
+#     db.session.commit()
 
-    db.session.add(new_staff)
-    db.session.commit()
-
-    return jsonify(new_staff.serialize()), 201 
+#     return jsonify(new_staff.serialize()), 201 
