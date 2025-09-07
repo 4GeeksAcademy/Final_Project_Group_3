@@ -1,6 +1,9 @@
 // /frontend/src/components/CustomerBooking.jsx
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Star, MessageSquare, Check } from "lucide-react";
+import { Link } from "react-router-dom";
+import ServiceCard from "../components/ServiceCard.jsx";
+import { SERVICES_BY_CATEGORY } from "../auth/servicesData.js";
 
 // ---- API base (Vite or CRA) ----
 // Use a Vite .env like: VITE_API_BASE=https://<YOUR-ID>-5000.app.github.dev
@@ -26,12 +29,13 @@ const SERVICES = [
     { id: 8, name: "Dip Powder", duration: 75, price: 60, description: "Durable dip powder nails" }
 ];
 
-const STAFF = [
-    { id: 1, name: "Maria Rodriguez", specialties: ["Manicure", "Nail Art"], rating: 4.9, experience: "8 years" },
-    { id: 2, name: "Jessica Chen", specialties: ["Pedicure", "Gel Services"], rating: 4.8, experience: "6 years" },
-    { id: 3, name: "Ashley Johnson", specialties: ["Acrylics", "Extensions"], rating: 4.9, experience: "10 years" },
-    { id: 4, name: "Sofia Martinez", specialties: ["Dip Powder", "Nail Art"], rating: 4.7, experience: "5 years" }
-];
+// Substituted with backend Staff
+// const STAFF = [
+//     { id: 1, name: "Maria Rodriguez", specialties: ["Manicure", "Nail Art"], rating: 4.9, experience: "8 years" },
+//     { id: 2, name: "Jessica Chen", specialties: ["Pedicure", "Gel Services"], rating: 4.8, experience: "6 years" },
+//     { id: 3, name: "Ashley Johnson", specialties: ["Acrylics", "Extensions"], rating: 4.9, experience: "10 years" },
+//     { id: 4, name: "Sofia Martinez", specialties: ["Dip Powder", "Nail Art"], rating: 4.7, experience: "5 years" }
+// ];
 
 const TIME_SLOTS = [
     "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
@@ -42,7 +46,74 @@ const TIME_SLOTS = [
 // Where the business alert SMS goes (owner phone). Backend uses OWNER_PHONE too.
 const BUSINESS_PHONE = "+17864935524";
 
+const FALLBACK_STAFF = [
+    {
+        id: "temp-1",
+        name: "Ava Nguyen",
+        role: "Senior Nail Artist",
+        bio: "Specializes in gel finishes and intricate hand-painted designs. 6+ years experience.",
+        photoUrl: "https://img.freepik.com/premium-photo/close-up-beautiful-asian-woman-beauty-blogger_1258-31223.jpg",
+        bookingUrl: "#",
+    },
+    {
+        id: "temp-2",
+        name: "Marcos Cruz",
+        role: "Acrylic & Sculpting",
+        bio: "Known for durable acrylic sets and custom shapes. Loves bold colors.",
+        photoUrl: "https://plus.unsplash.com/premium_photo-1689530775582-83b8abdb5020?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cmFuZG9tJTIwcGVyc29ufGVufDB8fDB8fHww",
+        bookingUrl: "#",
+    },
+    {
+        id: "temp-3",
+        name: "Jin Park",
+        role: "Dip Powder Expert",
+        bio: "Lightweight, natural-looking finishes with careful prep for nail health.",
+        photoUrl: "https://images.pexels.com/photos/3761521/pexels-photo-3761521.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+        bookingUrl: "#",
+    },
+    {
+        id: "temp-4",
+        name: "Sofia Rivera",
+        role: "Spa Pedicures",
+        bio: "Therapeutic pedicures with a focus on massage and relaxation.",
+        photoUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cmFuZG9tJTIwcGVvcGxlfGVufDB8fDB8fHww",
+        bookingUrl: "#",
+    },
+];
+
 export default function CustomerBooking() {
+    const [staff, setStaff] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [err, setErr] = useState("");
+
+    useEffect(() => {
+        const controller = new AbortController();
+
+        async function load() {
+            try {
+                const base = import.meta.env.VITE_BACKEND_URL;
+                const url = `${base}/api/staff`
+
+                if (!url) throw new Error("No backend URL configured");
+
+                const res = await fetch(url, { signal: controller.signal });
+                if (!res.ok) throw new Error(`API ${res.status}`);
+                const data = await res.json();
+
+                setStaff(Array.isArray(data) ? data : []);
+            } catch (e) {
+                // Fallback staff as placeholders until backend is ready
+                setErr(e.message || "Failed to load staff");
+                setStaff(FALLBACK_STAFF);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        load();
+        return () => controller.abort();
+    }, []);
+
     const [selectedService, setSelectedService] = useState(null);
     const [selectedStaff, setSelectedStaff] = useState(null);
     const [selectedDate, setSelectedDate] = useState("");
@@ -148,6 +219,45 @@ export default function CustomerBooking() {
         await sendSMS(newBooking);
     };
 
+    // --- Card for a staff member ---
+    function StaffCard({ first, last, role, photoUrl, isSelected }) {
+        return (
+            <div
+                className="card shadow-sm text-center p-3 hover-lift"
+                style={{
+                    width: "200px",
+                    height: "300px",
+                    backgroundColor: "white",
+                    borderRadius: "12px",
+                    transition: "all 0.2s ease-in-out",
+                    borderStyle: "solid",
+                    borderColor: isSelected ? "var(--gold)" : "transparent",
+                }}
+            >
+                <div className="ratio ratio-4x3 mb-2">
+                    <img
+                        src={photoUrl}
+                        alt={first}
+                        className="w-100 h-100 object-cover rounded-top"
+                    />
+                </div>
+
+                <div className="card-body p-2">
+                    <h6 className="mb-1">{first} {last}</h6>
+                    <p className="text-gold small mb-1">{role}</p>
+                    <Link
+                        to="/OurTeam"
+                        state={{ staff: { first, last, role, photoUrl } }}
+                        className="btn btn-gold btn-sm"
+                    >
+                        More Info
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+
     // ---- Confirmation screen ----
     if (currentBooking) {
         const b = currentBooking;
@@ -191,58 +301,72 @@ export default function CustomerBooking() {
                 <p className="text-gray-600">Choose a service, specialist, date, time, and payment method</p>
             </div>
 
-            <h3 className="text-lg font-semibold mb-3">Select a Service</h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-                {SERVICES.map(s => (
-                    <button key={s.id} type="button"
-                        className={`text-left border rounded-lg p-4 ${selectedService?.id === s.id ? "border-pink-500 bg-pink-50" : "hover:border-pink-300"}`}
-                        onClick={() => setSelectedService(s)}>
-                        <div className="flex justify-between items-start mb-2">
-                            <div>
-                                <h4 className="font-semibold">{s.name}</h4>
-                                <p className="text-sm text-gray-600">{s.description}</p>
-                            </div>
-                            <div className="text-pink-600 font-bold">${s.price}</div>
-                        </div>
-                        <div className="text-xs text-gray-500">{s.duration} min</div>
-                    </button>
+            <h3 className="text-lg font-semibold mb-3 ms-3">Choose Your Nail Technician</h3>
+            <div className="row gx-3 ps-2 mb-4 ">
+                {staff.map((item, i) => (
+                    <div
+                        key={item.id || i}
+                        className={`col-auto ${i === 0 ? "ms-md-4" : ""}`}
+                        onClick={() => setSelectedStaff(i)}
+                        style={{ cursor: "pointer" }}
+                    >
+                        <StaffCard {...item} isSelected={selectedStaff === i} />
+                    </div>
                 ))}
             </div>
 
-            <h3 className="text-lg font-semibold mb-3">Choose Your Nail Technician</h3>
-            <div className="grid md:grid-cols-2 gap-4 mb-6">
-                {STAFF.map(st => (
-                    <button key={st.id} type="button"
-                        className={`text-left border rounded-lg p-4 ${selectedStaff?.id === st.id ? "border-pink-500 bg-pink-50" : "hover:border-pink-300"}`}
-                        onClick={() => setSelectedStaff(st)}>
-                        <div className="flex justify-between items-start">
-                            <span className="font-semibold">{st.name}</span>
-                            <span className="flex items-center text-sm"><Star className="w-4 h-4 text-yellow-400 mr-1" />{st.rating}</span>
+            <h3 className="text-lg font-semibold mb-3 ms-3">Select a Service</h3>
+
+            <div className="row g-4 mb-4 ms-3">
+                {SERVICES_BY_CATEGORY.map((section) => (
+                    <div className="col-12 col-lg-6" key={section.title}>
+                        <h5 className="mb-3 ps-1">{section.title}</h5>
+
+                        <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                            {section.items.map((s) => (
+                                <div className="col d-flex" key={s.id}>
+                                    <ServiceCard
+                                        icon={s.icon}
+                                        title={s.name}
+                                        desc={s.description}
+                                        price={s.price}
+                                        selected={selectedService?.id === s.id}
+                                        onSelect={() => setSelectedService(s)}
+                                        actionLabel={selectedService?.id === s.id ? "Selected" : "Select"}
+                                        compact
+                                    />
+                                </div>
+                            ))}
                         </div>
-                        <div className="text-xs text-gray-500">{st.specialties.join(", ")} • {st.experience}</div>
-                    </button>
+                    </div>
                 ))}
             </div>
 
-            <h3 className="text-lg font-semibold mb-3">Select Date</h3>
-            <select value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="w-full p-3 border rounded-md mb-6 focus:ring-2 focus:ring-pink-500">
+
+            <h3 className="text-lg font-semibold mb-3 ms-3">Select Date</h3>
+            <select value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="ms-3 w-full price-pill align-self-center mb-4 focus:ring-2 focus:ring-pink-500">
                 <option value="">Choose a date</option>
                 {getAvailableDates().map(d => <option key={d} value={d}>{new Date(d + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</option>)}
             </select>
 
-            <h3 className="text-lg font-semibold mb-3">Select Time</h3>
-            <div className="grid grid-cols-3 gap-2 mb-6">
+            <h3 className="text-lg font-semibold mb-3 ms-3">Select Time</h3>
+            <div className="grid grid-cols-3 mb-4 ms-3">
                 {TIME_SLOTS.map(t => (
                     <button key={t} type="button" onClick={() => setSelectedTime(t)}
-                        className={`p-2 text-sm border rounded ${selectedTime === t ? "bg-pink-500 text-white border-pink-500" : "hover:border-pink-300"}`}>
+                        className='price-pill align-self-center'
+                        style={{
+                    transition: "all 0.2s ease-in-out",
+                    borderStyle: "solid",
+                    borderColor: selectedTime === t ? "var(--gold)" : "transparent",
+                }}>
                         {t}
                     </button>
                 ))}
             </div>
 
-            <h3 className="text-lg font-semibold mb-3">Payment</h3>
-            <div className="flex flex-col gap-4 mb-4">
-                <div className="flex gap-4">
+            <h3 className="text-lg font-semibold mb-3 ms-3">Payment</h3>
+            <div className="flex flex-col gap-4 mb-4 ms-3">
+                <div className="flex gap-4 mb-2">
                     <label className={`px-4 py-2 border rounded cursor-pointer ${paymentMethod === "card" ? "border-pink-500 bg-pink-50" : "hover:border-pink-300"}`}>
                         <input type="radio" name="pay" value="card" className="mr-2" checked={paymentMethod === "card"} onChange={() => setPaymentMethod("card")} />
                         Card
@@ -253,53 +377,58 @@ export default function CustomerBooking() {
                     </label>
                 </div>
 
-                <div className="grid md:grid-cols-4 gap-2">
+                <div className="grid md:grid-cols-4 gap-2 mb-3">
                     {[0, 5, 10, 15, 20].map(t => (
                         <button key={t} type="button"
                             onClick={() => setTip(String(t))}
-                            className={`p-2 border rounded ${Number(tip) === t ? "bg-pink-100 border-pink-500" : "hover:border-pink-300"}`}>
-                            Tip {t}$
+                            className='price-pill align-self-center'
+                        style={{
+                    transition: "all 0.2s ease-in-out",
+                    borderStyle: "solid",
+                    borderColor: Number(tip) === t ? "var(--gold)" : "transparent",
+                }}>
+                            Tip ${t}
                         </button>
                     ))}
-                    <input className="p-2 border rounded md:col-span-2" placeholder="Custom tip ($)"
+                    <input className="price-pill align-self-center md:col-span-2" placeholder="Custom tip ($)"
                         value={tip} onChange={(e) => setTip(e.target.value.replace(/[^\d.]/g, ""))} />
                 </div>
 
                 {paymentMethod === "card" && (
                     <div className="grid md:grid-cols-2 gap-3">
-                        <input className="p-3 border rounded-md" placeholder="Name on card" value={cardName} onChange={(e) => setCardName(e.target.value)} />
-                        <input className="p-3 border rounded-md" placeholder="Card number"
+                        <input className="price-pill align-self-center" placeholder="Name on card" value={cardName} onChange={(e) => setCardName(e.target.value)} />
+                        <input className="price-pill align-self-center" placeholder="Card number"
                             value={cardNumber} onChange={(e) => setCardNumber(cleanDigits(e.target.value).slice(0, 19))} />
-                        <input className="p-3 border rounded-md" placeholder="MM/YY" value={cardExpiry}
+                        <input className="price-pill align-self-center" placeholder="MM/YY" value={cardExpiry}
                             onChange={(e) => { let v = e.target.value.replace(/[^\d]/g, "").slice(0, 4); if (v.length >= 3) v = v.slice(0, 2) + "/" + v.slice(2); setCardExpiry(v); }} />
-                        <input className="p-3 border rounded-md" placeholder="CVC"
+                        <input className="price-pill align-self-center" placeholder="CVC"
                             value={cardCvc} onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, "").slice(0, 4))} />
                     </div>
                 )}
             </div>
 
-            <h3 className="text-lg font-semibold mb-3">Your Information</h3>
-            <div className="grid md:grid-cols-2 gap-4 mb-4">
-                <input className="p-3 border rounded-md" placeholder="First Name" value={customerInfo.firstName} onChange={e => setCustomerInfo(p => ({ ...p, firstName: e.target.value }))} />
-                <input className="p-3 border rounded-md" placeholder="Last Name" value={customerInfo.lastName} onChange={e => setCustomerInfo(p => ({ ...p, lastName: e.target.value }))} />
+            <h3 className="text-lg font-semibold mb-3 ms-3">Your Information</h3>
+            <div className="grid md:grid-cols-2 gap-4 mb-3 ms-3">
+                <input className="price-pill align-self-center" placeholder="First Name" value={customerInfo.firstName} onChange={e => setCustomerInfo(p => ({ ...p, firstName: e.target.value }))} />
+                <input className="price-pill align-self-center" placeholder="Last Name" value={customerInfo.lastName} onChange={e => setCustomerInfo(p => ({ ...p, lastName: e.target.value }))} />
             </div>
-            <div className="grid md:grid-cols-2 gap-4 mb-4">
-                <input className="p-3 border rounded-md" placeholder="Email" value={customerInfo.email} onChange={e => setCustomerInfo(p => ({ ...p, email: e.target.value }))} />
-                <input className="p-3 border rounded-md" placeholder="Phone (+1 xxx-xxx-xxxx)" value={customerInfo.phone} onChange={e => setCustomerInfo(p => ({ ...p, phone: e.target.value }))} />
+            <div className="grid md:grid-cols-2 gap-4 mb-3 ms-3">
+                <input className="price-pill align-self-center" placeholder="Email" value={customerInfo.email} onChange={e => setCustomerInfo(p => ({ ...p, email: e.target.value }))} />
+                <input className="price-pill align-self-center" placeholder="Phone (+1 xxx-xxx-xxxx)" value={customerInfo.phone} onChange={e => setCustomerInfo(p => ({ ...p, phone: e.target.value }))} />
             </div>
-            <textarea className="w-full p-3 border rounded-md mb-4" placeholder="Notes (optional)" value={customerInfo.notes} onChange={e => setCustomerInfo(p => ({ ...p, notes: e.target.value }))} />
+            <textarea className="w-full price-pill align-self-center mb-3 ms-3" placeholder="Notes (optional)" value={customerInfo.notes} onChange={e => setCustomerInfo(p => ({ ...p, notes: e.target.value }))} />
 
-            <div className="flex justify-between items-center mb-4 text-lg">
-                <span>Estimated total</span>
+            <div className="flex justify-between items-center mb-2 text-lg ms-3">
+                <span>Estimated total: </span>
                 <span className="font-semibold">${total}</span>
             </div>
 
             <button
                 disabled={!isFormValid}
                 onClick={handleSubmit}
-                className="w-full py-3 bg-pink-600 text-white rounded-md font-semibold hover:bg-pink-700 disabled:opacity-50 flex items-center justify-center"
+                className="mb-4 ms-3 w-full price-pill align-self-center hover:bg-pink-700 disabled:opacity-50 flex items-center justify-center"
             >
-                {smsStatus ? (<><MessageSquare className="w-5 h-5 mr-2" />{smsStatus}</>) : "Book Appointment & Send SMS"}
+                {smsStatus ? (<><MessageSquare className="w-5 h-5 mr-2" />{smsStatus}</>) : "Book Now"}
             </button>
         </div>
     );
