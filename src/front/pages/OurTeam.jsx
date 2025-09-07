@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 const PLACEHOLDER_IMG =
   "data:image/svg+xml;utf8,\
@@ -11,26 +12,34 @@ const FALLBACK_STAFF = [
   {
     id: "temp-1",
     name: "Ava Nguyen",
-    role: "Staff",
+    role: "Senior Nail Artist",
+    bio: "Specializes in gel finishes and intricate hand-painted designs. 6+ years experience.",
     photoUrl: "https://img.freepik.com/premium-photo/close-up-beautiful-asian-woman-beauty-blogger_1258-31223.jpg",
+    bookingUrl: "#",
   },
   {
     id: "temp-2",
     name: "Marcos Cruz",
-    role: "Staff",
+    role: "Acrylic & Sculpting",
+    bio: "Known for durable acrylic sets and custom shapes. Loves bold colors.",
     photoUrl: "https://plus.unsplash.com/premium_photo-1689530775582-83b8abdb5020?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cmFuZG9tJTIwcGVyc29ufGVufDB8fDB8fHww",
+    bookingUrl: "#",
   },
   {
     id: "temp-3",
     name: "Jin Park",
-    role: "Staff",
+    role: "Dip Powder Expert",
+    bio: "Lightweight, natural-looking finishes with careful prep for nail health.",
     photoUrl: "https://images.pexels.com/photos/3761521/pexels-photo-3761521.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+    bookingUrl: "#",
   },
   {
     id: "temp-4",
     name: "Sofia Rivera",
-    role: "Staff",
+    role: "Spa Pedicures",
+    bio: "Therapeutic pedicures with a focus on massage and relaxation.",
     photoUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cmFuZG9tJTIwcGVvcGxlfGVufDB8fDB8fHww",
+    bookingUrl: "#",
   },
 ];
 
@@ -89,35 +98,32 @@ export function OurTeam() {
 }
 
 // --- Card for a staff member ---
-function StaffCard({ first, last, role, bio, photoUrl, bookingUrl }) {
+function StaffCard({ first, last, role, bio, photoUrl}) {
   return (
-    <div className="h-100 shadow-sm team-card hover-lift">
+    <div className="card h-100 shadow-sm p-3 text-center team-card hover-lift">
       <div className="ratio ratio-4x3">
         <img
           src={photoUrl || PLACEHOLDER_IMG}
           alt={first}
           className="w-100 h-100 object-cover rounded-top"
+          style={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: "white",
+            borderRadius: "12px",
+          }}
         />
       </div>
       <div className="card-body">
         <h5 className="card-title mb-1">{first} {last}</h5>
         <p className="text-gold small mb-2">{role}</p>
         <p className="card-text text-muted mb-3">{bio}</p>
-
-        <div className="d-flex gap-2">
-          {/* Replace href with Calendly/Square link when available */}
-          <a
-            href={bookingUrl || "#"}
-            className="btn btn-gold btn-sm"
-            onClick={(e) => {
-              if (!bookingUrl || bookingUrl === "#") {
-                e.preventDefault();
-              }
-            }}
-          >
-            Book
-          </a>
-        </div>
+         <Link
+          to="/booking-app"
+          className="btn btn-gold btn-sm"
+        >
+          Book
+        </Link>
       </div>
     </div>
   );
