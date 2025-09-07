@@ -40,45 +40,38 @@ const SERVICES = [
 const TIME_SLOTS = [
     "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
     "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM",
-    "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM", "5:30 PM"
+    "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM", "5:30 PM", "6:00 PM",
+    "6:30 PM"
 ];
 
 // Where the business alert SMS goes (owner phone). Backend uses OWNER_PHONE too.
 const BUSINESS_PHONE = "+17864935524";
 
 const FALLBACK_STAFF = [
-    {
-        id: "temp-1",
-        name: "Ava Nguyen",
-        role: "Senior Nail Artist",
-        bio: "Specializes in gel finishes and intricate hand-painted designs. 6+ years experience.",
-        photoUrl: "https://img.freepik.com/premium-photo/close-up-beautiful-asian-woman-beauty-blogger_1258-31223.jpg",
-        bookingUrl: "#",
-    },
-    {
-        id: "temp-2",
-        name: "Marcos Cruz",
-        role: "Acrylic & Sculpting",
-        bio: "Known for durable acrylic sets and custom shapes. Loves bold colors.",
-        photoUrl: "https://plus.unsplash.com/premium_photo-1689530775582-83b8abdb5020?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cmFuZG9tJTIwcGVyc29ufGVufDB8fDB8fHww",
-        bookingUrl: "#",
-    },
-    {
-        id: "temp-3",
-        name: "Jin Park",
-        role: "Dip Powder Expert",
-        bio: "Lightweight, natural-looking finishes with careful prep for nail health.",
-        photoUrl: "https://images.pexels.com/photos/3761521/pexels-photo-3761521.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-        bookingUrl: "#",
-    },
-    {
-        id: "temp-4",
-        name: "Sofia Rivera",
-        role: "Spa Pedicures",
-        bio: "Therapeutic pedicures with a focus on massage and relaxation.",
-        photoUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cmFuZG9tJTIwcGVvcGxlfGVufDB8fDB8fHww",
-        bookingUrl: "#",
-    },
+  {
+    id: "temp-1",
+    name: "Ava Nguyen",
+    role: "Staff",
+    photoUrl: "https://img.freepik.com/premium-photo/close-up-beautiful-asian-woman-beauty-blogger_1258-31223.jpg",
+  },
+  {
+    id: "temp-2",
+    name: "Marcos Cruz",
+    role: "Staff",
+    photoUrl: "https://plus.unsplash.com/premium_photo-1689530775582-83b8abdb5020?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cmFuZG9tJTIwcGVyc29ufGVufDB8fDB8fHww",
+  },
+  {
+    id: "temp-3",
+    name: "Jin Park",
+    role: "Staff",
+    photoUrl: "https://images.pexels.com/photos/3761521/pexels-photo-3761521.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+  },
+  {
+    id: "temp-4",
+    name: "Sofia Rivera",
+    role: "Staff",
+    photoUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cmFuZG9tJTIwcGVvcGxlfGVufDB8fDB8fHww",
+  },
 ];
 
 export default function CustomerBooking() {
@@ -367,11 +360,11 @@ export default function CustomerBooking() {
             <h3 className="text-lg font-semibold mb-3 ms-3">Payment</h3>
             <div className="flex flex-col gap-4 mb-4 ms-3">
                 <div className="flex gap-4 mb-2">
-                    <label className={`px-4 py-2 border rounded cursor-pointer ${paymentMethod === "card" ? "border-pink-500 bg-pink-50" : "hover:border-pink-300"}`}>
+                    <label className={`price-pill align-self-center cursor-pointer ${paymentMethod === "card" ? "border-pink-500 bg-pink-50" : "hover:border-pink-300"}`}>
                         <input type="radio" name="pay" value="card" className="mr-2" checked={paymentMethod === "card"} onChange={() => setPaymentMethod("card")} />
                         Card
                     </label>
-                    <label className={`px-4 py-2 border rounded cursor-pointer ${paymentMethod === "cash" ? "border-pink-500 bg-pink-50" : "hover:border-pink-300"}`}>
+                    <label className={`price-pill align-self-center cursor-pointer ${paymentMethod === "cash" ? "border-pink-500 bg-pink-50" : "hover:border-pink-300"}`}>
                         <input type="radio" name="pay" value="cash" className="mr-2" checked={paymentMethod === "cash"} onChange={() => setPaymentMethod("cash")} />
                         Cash
                     </label>
