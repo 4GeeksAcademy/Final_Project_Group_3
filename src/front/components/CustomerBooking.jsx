@@ -301,12 +301,12 @@ export default function CustomerBooking() {
                 <p className="text-gray-600">Choose a service, specialist, date, time, and payment method</p>
             </div>
 
-            <h3 className="text-lg font-semibold mb-3">Choose Your Nail Technician</h3>
-            <div className="row gx-3 ps-2 mb-4">
+            <h3 className="text-lg font-semibold mb-3 ms-3">Choose Your Nail Technician</h3>
+            <div className="row gx-3 ps-2 mb-4 ">
                 {staff.map((item, i) => (
                     <div
                         key={item.id || i}
-                        className={`col-auto ${i === 0 ? "ms-md-2" : ""}`}
+                        className={`col-auto ${i === 0 ? "ms-md-4" : ""}`}
                         onClick={() => setSelectedStaff(i)}
                         style={{ cursor: "pointer" }}
                     >
@@ -315,9 +315,9 @@ export default function CustomerBooking() {
                 ))}
             </div>
 
-            <h3 className="text-lg font-semibold mb-3">Select a Service</h3>
+            <h3 className="text-lg font-semibold mb-3 ms-3">Select a Service</h3>
 
-            <div className="row g-4">
+            <div className="row g-4 mb-4 ms-3">
                 {SERVICES_BY_CATEGORY.map((section) => (
                     <div className="col-12 col-lg-6" key={section.title}>
                         <h5 className="mb-3 ps-1">{section.title}</h5>
@@ -343,17 +343,17 @@ export default function CustomerBooking() {
             </div>
 
 
-            <h3 className="text-lg font-semibold mb-3">Select Date</h3>
-            <select value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="w-full p-3 border rounded-md mb-6 focus:ring-2 focus:ring-pink-500">
+            <h3 className="text-lg font-semibold mb-3 ms-3">Select Date</h3>
+            <select value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="ms-3 w-full price-pill align-self-center mb-4 focus:ring-2 focus:ring-pink-500">
                 <option value="">Choose a date</option>
                 {getAvailableDates().map(d => <option key={d} value={d}>{new Date(d + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</option>)}
             </select>
 
-            <h3 className="text-lg font-semibold mb-3">Select Time</h3>
-            <div className="grid grid-cols-3 mb-6">
+            <h3 className="text-lg font-semibold mb-3 ms-3">Select Time</h3>
+            <div className="grid grid-cols-3 mb-4 ms-3">
                 {TIME_SLOTS.map(t => (
                     <button key={t} type="button" onClick={() => setSelectedTime(t)}
-                        className='price-pill align-self-center ms-1'
+                        className='price-pill align-self-center'
                         style={{
                     transition: "all 0.2s ease-in-out",
                     borderStyle: "solid",
@@ -364,9 +364,9 @@ export default function CustomerBooking() {
                 ))}
             </div>
 
-            <h3 className="text-lg font-semibold mb-3">Payment</h3>
-            <div className="flex flex-col gap-4 mb-4">
-                <div className="flex gap-4">
+            <h3 className="text-lg font-semibold mb-3 ms-3">Payment</h3>
+            <div className="flex flex-col gap-4 mb-4 ms-3">
+                <div className="flex gap-4 mb-2">
                     <label className={`px-4 py-2 border rounded cursor-pointer ${paymentMethod === "card" ? "border-pink-500 bg-pink-50" : "hover:border-pink-300"}`}>
                         <input type="radio" name="pay" value="card" className="mr-2" checked={paymentMethod === "card"} onChange={() => setPaymentMethod("card")} />
                         Card
@@ -377,53 +377,58 @@ export default function CustomerBooking() {
                     </label>
                 </div>
 
-                <div className="grid md:grid-cols-4 gap-2">
+                <div className="grid md:grid-cols-4 gap-2 mb-3">
                     {[0, 5, 10, 15, 20].map(t => (
                         <button key={t} type="button"
                             onClick={() => setTip(String(t))}
-                            className={`p-2 border rounded ${Number(tip) === t ? "bg-pink-100 border-pink-500" : "hover:border-pink-300"}`}>
-                            Tip {t}$
+                            className='price-pill align-self-center'
+                        style={{
+                    transition: "all 0.2s ease-in-out",
+                    borderStyle: "solid",
+                    borderColor: Number(tip) === t ? "var(--gold)" : "transparent",
+                }}>
+                            Tip ${t}
                         </button>
                     ))}
-                    <input className="p-2 border rounded md:col-span-2" placeholder="Custom tip ($)"
+                    <input className="price-pill align-self-center md:col-span-2" placeholder="Custom tip ($)"
                         value={tip} onChange={(e) => setTip(e.target.value.replace(/[^\d.]/g, ""))} />
                 </div>
 
                 {paymentMethod === "card" && (
                     <div className="grid md:grid-cols-2 gap-3">
-                        <input className="p-3 border rounded-md" placeholder="Name on card" value={cardName} onChange={(e) => setCardName(e.target.value)} />
-                        <input className="p-3 border rounded-md" placeholder="Card number"
+                        <input className="price-pill align-self-center" placeholder="Name on card" value={cardName} onChange={(e) => setCardName(e.target.value)} />
+                        <input className="price-pill align-self-center" placeholder="Card number"
                             value={cardNumber} onChange={(e) => setCardNumber(cleanDigits(e.target.value).slice(0, 19))} />
-                        <input className="p-3 border rounded-md" placeholder="MM/YY" value={cardExpiry}
+                        <input className="price-pill align-self-center" placeholder="MM/YY" value={cardExpiry}
                             onChange={(e) => { let v = e.target.value.replace(/[^\d]/g, "").slice(0, 4); if (v.length >= 3) v = v.slice(0, 2) + "/" + v.slice(2); setCardExpiry(v); }} />
-                        <input className="p-3 border rounded-md" placeholder="CVC"
+                        <input className="price-pill align-self-center" placeholder="CVC"
                             value={cardCvc} onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, "").slice(0, 4))} />
                     </div>
                 )}
             </div>
 
-            <h3 className="text-lg font-semibold mb-3">Your Information</h3>
-            <div className="grid md:grid-cols-2 gap-4 mb-4">
-                <input className="p-3 border rounded-md" placeholder="First Name" value={customerInfo.firstName} onChange={e => setCustomerInfo(p => ({ ...p, firstName: e.target.value }))} />
-                <input className="p-3 border rounded-md" placeholder="Last Name" value={customerInfo.lastName} onChange={e => setCustomerInfo(p => ({ ...p, lastName: e.target.value }))} />
+            <h3 className="text-lg font-semibold mb-3 ms-3">Your Information</h3>
+            <div className="grid md:grid-cols-2 gap-4 mb-3 ms-3">
+                <input className="price-pill align-self-center" placeholder="First Name" value={customerInfo.firstName} onChange={e => setCustomerInfo(p => ({ ...p, firstName: e.target.value }))} />
+                <input className="price-pill align-self-center" placeholder="Last Name" value={customerInfo.lastName} onChange={e => setCustomerInfo(p => ({ ...p, lastName: e.target.value }))} />
             </div>
-            <div className="grid md:grid-cols-2 gap-4 mb-4">
-                <input className="p-3 border rounded-md" placeholder="Email" value={customerInfo.email} onChange={e => setCustomerInfo(p => ({ ...p, email: e.target.value }))} />
-                <input className="p-3 border rounded-md" placeholder="Phone (+1 xxx-xxx-xxxx)" value={customerInfo.phone} onChange={e => setCustomerInfo(p => ({ ...p, phone: e.target.value }))} />
+            <div className="grid md:grid-cols-2 gap-4 mb-3 ms-3">
+                <input className="price-pill align-self-center" placeholder="Email" value={customerInfo.email} onChange={e => setCustomerInfo(p => ({ ...p, email: e.target.value }))} />
+                <input className="price-pill align-self-center" placeholder="Phone (+1 xxx-xxx-xxxx)" value={customerInfo.phone} onChange={e => setCustomerInfo(p => ({ ...p, phone: e.target.value }))} />
             </div>
-            <textarea className="w-full p-3 border rounded-md mb-4" placeholder="Notes (optional)" value={customerInfo.notes} onChange={e => setCustomerInfo(p => ({ ...p, notes: e.target.value }))} />
+            <textarea className="w-full price-pill align-self-center mb-3 ms-3" placeholder="Notes (optional)" value={customerInfo.notes} onChange={e => setCustomerInfo(p => ({ ...p, notes: e.target.value }))} />
 
-            <div className="flex justify-between items-center mb-4 text-lg">
-                <span>Estimated total</span>
+            <div className="flex justify-between items-center mb-2 text-lg ms-3">
+                <span>Estimated total: </span>
                 <span className="font-semibold">${total}</span>
             </div>
 
             <button
                 disabled={!isFormValid}
                 onClick={handleSubmit}
-                className="w-full py-3 bg-pink-600 text-white rounded-md font-semibold hover:bg-pink-700 disabled:opacity-50 flex items-center justify-center"
+                className="mb-4 ms-3 w-full price-pill align-self-center hover:bg-pink-700 disabled:opacity-50 flex items-center justify-center"
             >
-                {smsStatus ? (<><MessageSquare className="w-5 h-5 mr-2" />{smsStatus}</>) : "Book Appointment & Send SMS"}
+                {smsStatus ? (<><MessageSquare className="w-5 h-5 mr-2" />{smsStatus}</>) : "Book Now"}
             </button>
         </div>
     );

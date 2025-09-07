@@ -23,16 +23,15 @@ export default function BookingApp() {
         <div className="min-h-screen bg-gray-50">
             <nav className="bg-pink-600 text-white">
                 <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-                    <h1 className="text-xl font-bold">💅 Glamour Nails Studio</h1>
                     <div className="flex gap-2">
                         <button
-                            className={`px-3 py-1 rounded ${view === "booking" ? "bg-pink-700" : "hover:bg-pink-700"}`}
+                            className={`price-pill align-self-center ${view === "booking" ? "bg-pink-700" : "hover:bg-pink-700"}`}
                             onClick={() => setView("booking")}
                         >
                             Booking
                         </button>
                         <button
-                            className={`px-3 py-1 rounded ${view === "login" || view === "admin" ? "bg-pink-700" : "hover:bg-pink-700"}`}
+                            className={`price-pill align-self-center ${view === "login" || view === "admin" ? "bg-pink-700" : "hover:bg-pink-700"}`}
                             onClick={toLogin}
                         >
                             Staff Login
