@@ -11,34 +11,26 @@ const FALLBACK_STAFF = [
   {
     id: "temp-1",
     name: "Ava Nguyen",
-    role: "Senior Nail Artist",
-    bio: "Specializes in gel finishes and intricate hand-painted designs. 6+ years experience.",
+    role: "Staff",
     photoUrl: "https://img.freepik.com/premium-photo/close-up-beautiful-asian-woman-beauty-blogger_1258-31223.jpg",
-    bookingUrl: "#",
   },
   {
     id: "temp-2",
     name: "Marcos Cruz",
-    role: "Acrylic & Sculpting",
-    bio: "Known for durable acrylic sets and custom shapes. Loves bold colors.",
+    role: "Staff",
     photoUrl: "https://plus.unsplash.com/premium_photo-1689530775582-83b8abdb5020?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cmFuZG9tJTIwcGVyc29ufGVufDB8fDB8fHww",
-    bookingUrl: "#",
   },
   {
     id: "temp-3",
     name: "Jin Park",
-    role: "Dip Powder Expert",
-    bio: "Lightweight, natural-looking finishes with careful prep for nail health.",
+    role: "Staff",
     photoUrl: "https://images.pexels.com/photos/3761521/pexels-photo-3761521.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-    bookingUrl: "#",
   },
   {
     id: "temp-4",
     name: "Sofia Rivera",
-    role: "Spa Pedicures",
-    bio: "Therapeutic pedicures with a focus on massage and relaxation.",
+    role: "Staff",
     photoUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cmFuZG9tJTIwcGVvcGxlfGVufDB8fDB8fHww",
-    bookingUrl: "#",
   },
 ];
 
@@ -99,7 +91,7 @@ export function OurTeam() {
 // --- Card for a staff member ---
 function StaffCard({ first, last, role, bio, photoUrl, bookingUrl }) {
   return (
-    <div className="card h-100 shadow-sm team-card hover-lift">
+    <div className="h-100 shadow-sm team-card hover-lift">
       <div className="ratio ratio-4x3">
         <img
           src={photoUrl || PLACEHOLDER_IMG}
