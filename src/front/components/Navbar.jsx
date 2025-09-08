@@ -37,7 +37,11 @@ export const Navbar = () => {
 							data-bs-toggle="dropdown"
 							aria-expanded="false"
 						>
-							Account
+							{loggedIn ? (
+								<span>Account </span>
+							) : (
+								<span>Sign up </span>
+							)}
 						</button>
 						<ul className="dropdown-menu dropdown-menu-end bg-dark" aria-labelledby="dropdownMenuButton">
 							{loggedIn ? (
@@ -48,6 +52,7 @@ export const Navbar = () => {
 							) : (
 								<>
 									<li><a className="dropdown-item text-warning nav-drop" href="/login">Login</a></li>
+									<li><a className="dropdown-item text-light nav-drop" href="/login">Staff Login</a></li>
 									<li><a className="dropdown-item text-light nav-drop" href="/signup">Sign Up</a></li>
 								</>
 							)}
