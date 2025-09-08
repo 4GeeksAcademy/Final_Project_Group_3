@@ -17,17 +17,17 @@ const API_ROOT = String(API_BASE || "").replace(/\/+$/, "");
 // ---- Storage key ----
 const LS_KEY = "salonBookings";
 
-// ---- Mock data ----
-const SERVICES = [
-    { id: 1, name: "Classic Manicure", duration: 45, price: 35, description: "Basic nail care with polish" },
-    { id: 2, name: "Gel Manicure", duration: 60, price: 50, description: "Long-lasting gel polish application" },
-    { id: 3, name: "Classic Pedicure", duration: 60, price: 40, description: "Foot care with polish" },
-    { id: 4, name: "Gel Pedicure", duration: 75, price: 55, description: "Long-lasting gel pedicure" },
-    { id: 5, name: "Nail Art", duration: 30, price: 25, description: "Custom nail designs" },
-    { id: 6, name: "Acrylic Full Set", duration: 90, price: 70, description: "Full acrylic nail extensions" },
-    { id: 7, name: "Acrylic Fill", duration: 60, price: 45, description: "Acrylic nail maintenance" },
-    { id: 8, name: "Dip Powder", duration: 75, price: 60, description: "Durable dip powder nails" }
-];
+// // ---- Mock data ----
+// const SERVICES = [
+//     { id: 1, name: "Classic Manicure", duration: 45, price: 35, description: "Basic nail care with polish" },
+//     { id: 2, name: "Gel Manicure", duration: 60, price: 50, description: "Long-lasting gel polish application" },
+//     { id: 3, name: "Classic Pedicure", duration: 60, price: 40, description: "Foot care with polish" },
+//     { id: 4, name: "Gel Pedicure", duration: 75, price: 55, description: "Long-lasting gel pedicure" },
+//     { id: 5, name: "Nail Art", duration: 30, price: 25, description: "Custom nail designs" },
+//     { id: 6, name: "Acrylic Full Set", duration: 90, price: 70, description: "Full acrylic nail extensions" },
+//     { id: 7, name: "Acrylic Fill", duration: 60, price: 45, description: "Acrylic nail maintenance" },
+//     { id: 8, name: "Dip Powder", duration: 75, price: 60, description: "Durable dip powder nails" }
+// ];
 
 // Substituted with backend Staff
 // const STAFF = [
@@ -48,30 +48,48 @@ const TIME_SLOTS = [
 const BUSINESS_PHONE = "+17864935524";
 
 const FALLBACK_STAFF = [
-  {
-    id: "temp-1",
-    name: "Ava Nguyen",
-    role: "Staff",
-    photoUrl: "https://img.freepik.com/premium-photo/close-up-beautiful-asian-woman-beauty-blogger_1258-31223.jpg",
-  },
-  {
-    id: "temp-2",
-    name: "Marcos Cruz",
-    role: "Staff",
-    photoUrl: "https://plus.unsplash.com/premium_photo-1689530775582-83b8abdb5020?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cmFuZG9tJTIwcGVyc29ufGVufDB8fDB8fHww",
-  },
-  {
-    id: "temp-3",
-    name: "Jin Park",
-    role: "Staff",
-    photoUrl: "https://images.pexels.com/photos/3761521/pexels-photo-3761521.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-  },
-  {
-    id: "temp-4",
-    name: "Sofia Rivera",
-    role: "Staff",
-    photoUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cmFuZG9tJTIwcGVvcGxlfGVufDB8fDB8fHww",
-  },
+    {
+        id: "temp-1",
+        first: "Ava",
+        last: "Nguyen",
+        role: "Staff",
+        photoUrl: "https://img.freepik.com/premium-photo/close-up-beautiful-asian-woman-beauty-blogger_1258-31223.jpg",
+    },
+    {
+        id: "temp-2",
+        first: "Marco",
+        last: "Cruz",
+        role: "Staff",
+        photoUrl: "https://plus.unsplash.com/premium_photo-1689530775582-83b8abdb5020?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cmFuZG9tJTIwcGVyc29ufGVufDB8fDB8fHww",
+    },
+    {
+        id: "temp-3",
+        first: "Jin",
+        last: "Park",
+        role: "Staff",
+        photoUrl: "https://images.pexels.com/photos/3761521/pexels-photo-3761521.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+    },
+    {
+        id: "temp-4",
+        first: "Sofia",
+        last: "Rivera",
+        role: "Staff",
+        photoUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cmFuZG9tJTIwcGVvcGxlfGVufDB8fDB8fHww",
+    },
+    {
+        id: "temp-5",
+        first: "Noah",
+        last: "Kim",
+        role: "Staff",
+        photoUrl: "https://images.pexels.com/photos/1704488/pexels-photo-1704488.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+    },
+    {
+        id: "temp-6",
+        first: "Lena",
+        last: "Martinez",
+        role: "Staff",
+        photoUrl: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+    }
 ];
 
 export default function CustomerBooking() {
@@ -107,10 +125,20 @@ export default function CustomerBooking() {
         return () => controller.abort();
     }, []);
 
-    const [selectedService, setSelectedService] = useState(null);
-    const [selectedStaff, setSelectedStaff] = useState(null);
+    // const [selectedServices, setSelectedServices] = useState(null); // old
+    const [selectedStaff, setSelectedStaff] = useState(-1);
     const [selectedDate, setSelectedDate] = useState("");
     const [selectedTime, setSelectedTime] = useState("");
+    const [selectedServices, setSelectedServices] = useState([]); //added
+
+    const isSelected = (id) => selectedServices.some(s => s.id === id); //added
+    const toggleService = (svc) =>
+        setSelectedServices(prev =>
+            prev.some(s => s.id === svc.id)
+                ? prev.filter(s => s.id !== svc.id)   // remove
+                : [...prev, svc]                      // add
+        );
+
 
     const [paymentMethod, setPaymentMethod] = useState("card"); // card | cash
     const [tip, setTip] = useState("0");
@@ -137,20 +165,29 @@ export default function CustomerBooking() {
     const validCvc = /^\d{3,4}$/.test(cardCvc);
 
     const numericTip = Number.isFinite(Number(tip)) ? Number(tip) : 0;
-    const total = (selectedService?.price || 0) + (numericTip || 0);
+    // const total = (selectedServices?.price || 0) + (numericTip || 0); // old
+    const servicesTotal = selectedServices.reduce((sum, s) => sum + (s.price || 0), 0);
+    const durationTotal = selectedServices.reduce((sum, s) => sum + (s.duration || 0), 0); // added
+    const total = servicesTotal + numericTip;
 
     const isFormValid = useMemo(() => {
         const basics =
-            selectedService && selectedStaff && selectedDate && selectedTime &&
+            selectedServices.length > 0 && //added
+            // selectedService && //old
+            selectedStaff >= 0 && selectedDate && selectedTime &&
             customerInfo.firstName && customerInfo.lastName &&
             isValidEmail(customerInfo.email) && isValidPhone(customerInfo.phone);
-        if (!basics) return false;
-        if (paymentMethod === "cash") return true;
-        return !!(cardName.trim() && validCard && validExpiry && validCvc);
-    }, [
-        selectedService, selectedStaff, selectedDate, selectedTime,
-        customerInfo, paymentMethod, cardName, cardNumber, cardExpiry, cardCvc
-    ]);
+        if (paymentMethod === "cash") return basics; //added
+        return basics && validCard && validExpiry && validCvc;
+    }, [selectedServices, selectedStaff, selectedDate, selectedTime, paymentMethod, validCard, validExpiry, validCvc, customerInfo]);
+    //     if (!basics) return false;
+    //     if (paymentMethod === "cash") return true;
+    //     return !!(cardName.trim() && validCard && validExpiry && validCvc);
+    // }, [
+    //     selectedServices, selectedStaff, selectedDate, selectedTime,
+    //     customerInfo, paymentMethod, cardName, cardNumber, cardExpiry, cardCvc
+    // ]); //old
+
 
     const getAvailableDates = () => {
         const out = [], today = new Date();
@@ -187,7 +224,8 @@ export default function CustomerBooking() {
     const handleSubmit = async () => {
         const newBooking = {
             id: Date.now(),
-            service: selectedService,
+            // services: selectedServices, // old
+            services: selectedServices.map(({ id, name, price, duration }) => ({ id, name, price, duration })), //added
             staff: selectedStaff,
             date: selectedDate,
             time: selectedTime,
@@ -199,7 +237,8 @@ export default function CustomerBooking() {
             customer: customerInfo,
             status: "confirmed",
             createdAt: new Date().toISOString(),
-            totals: { service: selectedService.price, tip: Number(numericTip || 0), total }
+            // totals: { services: selectedServices.price, tip: Number(numericTip || 0), total } //old
+            totals: { service: servicesTotal, tip: Number(numericTip || 0), total } //added
         };
 
         const list = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
@@ -216,7 +255,7 @@ export default function CustomerBooking() {
     function StaffCard({ first, last, role, photoUrl, isSelected }) {
         return (
             <div
-                className="card shadow-sm text-center p-3 hover-lift"
+                className="card shadow-sm text-center mx-auto p-3 hover-lift"
                 style={{
                     width: "200px",
                     height: "300px",
@@ -254,18 +293,36 @@ export default function CustomerBooking() {
     // ---- Confirmation screen ----
     if (currentBooking) {
         const b = currentBooking;
+        const tech =
+            typeof b.staff === "number"
+                ? staff[b.staff]
+                : (b.staff && b.staff.first ? b.staff : null);
         return (
             <div className="max-w-2xl mx-auto p-6 text-center">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Check className="w-8 h-8 text-green-600" />
                 </div>
-                <h2 className="text-3xl font-bold text-green-800 mb-2">Booking Confirmed!</h2>
-                <p className="text-gray-600">Your appointment has been successfully booked.</p>
+                <h2 className="text-3xl font-bold mb-2">Booking Confirmed!</h2>
+                <p className="mb-4 price-pill">Your appointment has been successfully booked.</p>
 
                 <div className="bg-gray-50 rounded-lg p-6 mb-6 mt-6 text-left">
                     <div className="space-y-2">
-                        <Line k="Service" v={b.service.name} />
-                        <Line k="Technician" v={b.staff.name} />
+                        <div className="my-4 flex mx-auto">
+                            {tech ? (
+                                <StaffCard
+                                    first={tech.first}
+                                    last={tech.last}
+                                    role={tech.role}
+                                    photoUrl={tech.photoUrl}
+                                    isSelected
+                                    readOnly
+                                />
+                            ) : (
+                                <span className="price-pill">Technician not set</span>
+                            )}
+                        </div>
+                        {/* <Line k="Service" v={b.service.name} /> old */}
+                        <Line k="Services" v={b.services.map(x => x.name).join(", ")} />
                         <Line k="Date" v={formatDate(b.date)} />
                         <Line k="Time" v={b.time} />
                         <Line k="Payment" v={`${b.payment.method}${b.payment.card ? ` •••• ${b.payment.card.last4}` : ""}`} />
@@ -278,7 +335,7 @@ export default function CustomerBooking() {
                 {smsStatus && <div className="mb-6 p-3 bg-blue-50 border border-blue-200 rounded">{smsStatus}</div>}
 
                 <div className="flex gap-3 justify-center">
-                    <button onClick={() => setCurrentBooking(null)} className="px-4 py-2 border border-pink-600 text-pink-600 rounded-md hover:bg-pink-50">
+                    <button onClick={() => setCurrentBooking(null)} className="mb-5 price-pill">
                         Book Another
                     </button>
                 </div>
@@ -323,9 +380,9 @@ export default function CustomerBooking() {
                                         title={s.name}
                                         desc={s.description}
                                         price={s.price}
-                                        selected={selectedService?.id === s.id}
-                                        onSelect={() => setSelectedService(s)}
-                                        actionLabel={selectedService?.id === s.id ? "Selected" : "Select"}
+                                        selected={isSelected(s.id)}
+                                        onSelect={() => toggleService(s)}
+                                        actionLabel={isSelected(s.id) ? "Selected" : "Select"}
                                         compact
                                     />
                                 </div>
@@ -348,10 +405,10 @@ export default function CustomerBooking() {
                     <button key={t} type="button" onClick={() => setSelectedTime(t)}
                         className='price-pill align-self-center'
                         style={{
-                    transition: "all 0.2s ease-in-out",
-                    borderStyle: "solid",
-                    borderColor: selectedTime === t ? "var(--gold)" : "transparent",
-                }}>
+                            transition: "all 0.2s ease-in-out",
+                            borderStyle: "solid",
+                            borderColor: selectedTime === t ? "var(--gold)" : "transparent",
+                        }}>
                         {t}
                     </button>
                 ))}
@@ -375,11 +432,11 @@ export default function CustomerBooking() {
                         <button key={t} type="button"
                             onClick={() => setTip(String(t))}
                             className='price-pill align-self-center'
-                        style={{
-                    transition: "all 0.2s ease-in-out",
-                    borderStyle: "solid",
-                    borderColor: Number(tip) === t ? "var(--gold)" : "transparent",
-                }}>
+                            style={{
+                                transition: "all 0.2s ease-in-out",
+                                borderStyle: "solid",
+                                borderColor: Number(tip) === t ? "var(--gold)" : "transparent",
+                            }}>
                             Tip ${t}
                         </button>
                     ))}
@@ -427,11 +484,11 @@ export default function CustomerBooking() {
     );
 }
 
-function Line({ k, v, strong }) {
+function Line({ k, v }) {
     return (
         <div className="flex justify-between">
-            <span className={strong ? "font-bold" : "font-medium"}>{k}:</span>
-            <span className={strong ? "font-bold" : ""}>{v}</span>
+            <span className={"price-pill"}>{k}:</span>
+            <span className={"price-pill"}>{v}</span>
         </div>
     );
 }
