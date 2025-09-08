@@ -6,6 +6,7 @@ import manicuresImg from "../assets/img/nails6.jpg";
 import pedicuresImg from "../assets/img/pedicures.jpg";
 import dipsImg from "../assets/img/dip.webp";
 import acrylicImg from "../assets/img/acrylic.jpg";
+import { Link } from "react-router-dom";
 
 function SectionHeading({ id, children }) {
     return (
@@ -33,22 +34,11 @@ function ServiceCard({ icon, title, desc, price, bookingUrl }) {
                     {/* Price pill */}
                     <span className="price-pill align-self-center mb-3">{price}</span>
 
-                    <div className="flex-grow-1" />
-                    {/* Book button */}
-                    {bookingUrl ? (
-                        <a
-                            href={bookingUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-gold w-100 shadow-sm"
-                        >
-                            Book Now
-                        </a>
-                    ) : (
-                        <button className="btn btn-gold w-100" disabled>
-                            Book Now
-                        </button>
-                    )}
+                    <Link
+                        to={"/booking-app"}
+                        className="btn btn-gold btn-sm">
+                        Book
+                    </Link>
                 </div>
             </div>
         </div>

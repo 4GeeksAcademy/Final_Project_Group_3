@@ -17,17 +17,17 @@ const API_ROOT = String(API_BASE || "").replace(/\/+$/, "");
 // ---- Storage key ----
 const LS_KEY = "salonBookings";
 
-// ---- Mock data ----
-const SERVICES = [
-    { id: 1, name: "Classic Manicure", duration: 45, price: 35, description: "Basic nail care with polish" },
-    { id: 2, name: "Gel Manicure", duration: 60, price: 50, description: "Long-lasting gel polish application" },
-    { id: 3, name: "Classic Pedicure", duration: 60, price: 40, description: "Foot care with polish" },
-    { id: 4, name: "Gel Pedicure", duration: 75, price: 55, description: "Long-lasting gel pedicure" },
-    { id: 5, name: "Nail Art", duration: 30, price: 25, description: "Custom nail designs" },
-    { id: 6, name: "Acrylic Full Set", duration: 90, price: 70, description: "Full acrylic nail extensions" },
-    { id: 7, name: "Acrylic Fill", duration: 60, price: 45, description: "Acrylic nail maintenance" },
-    { id: 8, name: "Dip Powder", duration: 75, price: 60, description: "Durable dip powder nails" }
-];
+// // ---- Mock data ----
+// const SERVICES = [
+//     { id: 1, name: "Classic Manicure", duration: 45, price: 35, description: "Basic nail care with polish" },
+//     { id: 2, name: "Gel Manicure", duration: 60, price: 50, description: "Long-lasting gel polish application" },
+//     { id: 3, name: "Classic Pedicure", duration: 60, price: 40, description: "Foot care with polish" },
+//     { id: 4, name: "Gel Pedicure", duration: 75, price: 55, description: "Long-lasting gel pedicure" },
+//     { id: 5, name: "Nail Art", duration: 30, price: 25, description: "Custom nail designs" },
+//     { id: 6, name: "Acrylic Full Set", duration: 90, price: 70, description: "Full acrylic nail extensions" },
+//     { id: 7, name: "Acrylic Fill", duration: 60, price: 45, description: "Acrylic nail maintenance" },
+//     { id: 8, name: "Dip Powder", duration: 75, price: 60, description: "Durable dip powder nails" }
+// ];
 
 // Substituted with backend Staff
 // const STAFF = [
@@ -50,28 +50,46 @@ const BUSINESS_PHONE = "+17864935524";
 const FALLBACK_STAFF = [
   {
     id: "temp-1",
-    name: "Ava Nguyen",
+    first: "Ava",
+    last: "Nguyen",
     role: "Staff",
     photoUrl: "https://img.freepik.com/premium-photo/close-up-beautiful-asian-woman-beauty-blogger_1258-31223.jpg",
   },
   {
     id: "temp-2",
-    name: "Marcos Cruz",
+    first: "Marco",
+    last: "Cruz",
     role: "Staff",
     photoUrl: "https://plus.unsplash.com/premium_photo-1689530775582-83b8abdb5020?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cmFuZG9tJTIwcGVyc29ufGVufDB8fDB8fHww",
   },
   {
     id: "temp-3",
-    name: "Jin Park",
+    first: "Jin",
+    last: "Park",
     role: "Staff",
     photoUrl: "https://images.pexels.com/photos/3761521/pexels-photo-3761521.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
   },
   {
     id: "temp-4",
-    name: "Sofia Rivera",
+    first: "Sofia",
+    last: "Rivera",
     role: "Staff",
     photoUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cmFuZG9tJTIwcGVvcGxlfGVufDB8fDB8fHww",
   },
+  {
+  id: "temp-5",
+  first: "Noah",
+  last: "Kim",
+  role: "Staff",
+  photoUrl: "https://images.pexels.com/photos/1704488/pexels-photo-1704488.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+},
+{
+  id: "temp-6",
+  first: "Lena",
+  last: "Martinez",
+  role: "Staff",
+  photoUrl: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+}
 ];
 
 export default function CustomerBooking() {
