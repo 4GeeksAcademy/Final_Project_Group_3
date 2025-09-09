@@ -64,7 +64,7 @@
 }
 
 .nav-drop:hover {
-  background-color: var(--hover); /* or your preferred highlight color */
+  background-color: var(--hover);
   color: var(--gold);
 }
 
@@ -105,6 +105,16 @@
   color: #111;
 }
 
+.price-pill-gold {
+  display: inline-block;
+  padding: .35rem .75rem;
+  border-radius: 999px;
+  background: #f6f6f6;
+  border: 1px solid rgba(0,0,0,.08);
+  font-weight: 700;
+  color: #d4af37;
+}
+
 .split-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -143,4 +153,107 @@
 .toast-header {
   background-color: var(--gold) !important;
   color: #212529 !important;
+}
+
+.gold-title {
+  text-align: center;
+  font-weight: 800;
+  font-size: clamp(1.6rem, 2.4vw, 2rem);
+  margin-bottom: 1rem;
+  color: #d4af37
+}
+
+.diff-text {
+  text-align: center;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: gainsboro
+}
+
+.button-text {
+  font-weight: 800;
+}
+
+.auth-wrapper {
+  min-height: calc(85vh - 70px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2rem, 4vw, 4rem) 1rem;
+}
+
+.auth-card {
+  width: min(440px, 92vw);
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0,0,0,.12);
+  outline: 1px solid rgba(212,175,55,.45);
+  padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.auth-title {
+  font-weight: 800;
+  font-size: clamp(1.6rem, 2.4vw, 2rem);
+  margin-bottom: 1rem;
+}
+
+.auth-card .form-control {
+  height: 48px;
+  border-radius: 12px;
+  border-color: rgba(0,0,0,.15);
+}
+
+.auth-card .form-control:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 .25rem rgba(212, 175, 55, .25);
+}
+
+.stack-sm {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .75rem;
+  align-items: center;
+}
+
+@media (max-width: 480px) {
+  .stack-sm { grid-template-columns: 1fr; }
+}
+
+.link-gold {
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 600;
+}
+.link-gold:hover {
+  color: var(--hover);
+  text-decoration: underline;
+}
+
+.time-pill {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+  padding: 1vb;
+  background: #f6f6f6;
+  border: 1px solid rgba(0,0,0,.08);
+  font-weight: 700;;
+}
+
+.time-pill:hover {
+  border-color: var(--gold) !important;              /* make sure it wins */
+  box-shadow: 0 0 0 .2rem rgba(212,175,55,.30),      /* soft outer glow */
+              0 2px 8px rgba(0,0,0,.06);             /* subtle lift */
+  transform: translateY(-1px);
+}
+
+.time-pill:focus-visible {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 .25rem rgba(212,175,55,.35);
+}
+
+.time-pill.selected {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 .2rem rgba(212,175,55,.30);
 }

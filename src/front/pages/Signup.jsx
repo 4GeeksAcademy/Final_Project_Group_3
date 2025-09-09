@@ -42,63 +42,57 @@ export const Signup = () => {
     };
 
     return (
-        <div>
-            <div className="d-flex display-items-center justify-content-center">
-                <div className="container">
-                    <div className="row">
-                        <div className="col-2"></div>
-                        <div className="col-8 d-flex justify-content-center">
-                            <div className="border border-1 border-secondary rounded p-3 d-flex justify-content-center align-items-center mt-5 mb-5" style={{ height: "65vh", width: "30vw", boxSizing: "border-box" }}>
-                                <div className="d-flex flex-column align-items-center justify-content-center">
-                                    <h1 className="mx-auto mb-3">Sign Up!</h1>
-                                    <form onSubmit={createUser}>
-                                        <input
-                                            className="form-control border-1 border-secondary focus-ring-0 m-1"
-                                            value={fNameInputValue}
-                                            placeholder="First Name"
-                                            onChange={(event) => setFNameInputValue(event.target.value)}
-                                        />
-                                        <input
-                                            className="form-control border-1 border-secondary focus-ring-0 m-1"
-                                            value={lNameInputValue}
-                                            placeholder="Last Name"
-                                            onChange={(event) => setLNameInputValue(event.target.value)}
-                                        />
-                                        <input
-                                            className="form-control border-1 border-secondary focus-ring-0 m-1"
-                                            value={emailInputValue}
-                                            placeholder="E-Mail"
-                                            onChange={(event) => setEmailInputValue(event.target.value)}
-                                        />{/* onKeyDown={(event) => postTodo(event)} - change this to throw an error if both fields are not full */}
-                                        <input
-                                            className="form-control border-1 border-secondary focus-ring-0 m-1"
-                                            value={phoneInputValue}
-                                            placeholder="Phone #"
-                                            onChange={(event) => setPhoneInputValue(event.target.value)}
-                                        />
-                                        <input
-                                            className="form-control border-1 border-secondary focus-ring-0 m-1"
-                                            value={passwordInputValue}
-                                            placeholder="Password"
-                                            onChange={(event) => setPasswordInputValue(event.target.value)}
-                                        />{/* onKeyDown={(event) => postTodo(event)} - change this to throw an error if both fields are not full */}
-                                        <div className="d-flex justify-content-center align-items-center mt-4 mb-3">
-                                            <Link to="/" className="btn btn-secondary me-2 text-decoration-none">
-                                                Cancel
-                                            </Link>
-                                            <button type="submit" className="btn btn-gold ms-2 text-decoration-none">
-                                                Sign up!
-                                            </button>
-                                        </div>
-                                        <span>Already have an account? <a href="/Login" className="text-gold">Log in.</a></span>
-                                    </form>
-                                    {/* put link to send signup token here, and onclick (onsubmit?) */}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-2"></div>
+        <div className="auth-wrapper">
+            <div className="auth-card">
+                <h1 className="auth-title">Sign Up!</h1>
+                <form onSubmit={createUser}>
+                    <input
+                        className="form-control form-control-lg mb-3"
+                        value={fNameInputValue}
+                        placeholder="First Name"
+                        onChange={(event) => setFNameInputValue(event.target.value)}
+                    />
+                    <input
+                        className="form-control form-control-lg mb-3"
+                        value={lNameInputValue}
+                        placeholder="Last Name"
+                        onChange={(event) => setLNameInputValue(event.target.value)}
+                    />
+                    <input
+                        className="form-control form-control-lg mb-3"
+                        value={emailInputValue}
+                        placeholder="E-Mail"
+                        onChange={(event) => setEmailInputValue(event.target.value)}
+                    />{/* onKeyDown={(event) => postTodo(event)} - change this to throw an error if both fields are not full */}
+                    <input
+                        className="form-control form-control-lg mb-3"
+                        value={phoneInputValue}
+                        placeholder="Phone #"
+                        type="tel"
+                        onChange={(event) => setPhoneInputValue(event.target.value)}
+                    />
+                    <input
+                        className="form-control form-control-lg mb-3"
+                        type="password"
+                        value={passwordInputValue}
+                        placeholder="Password"
+                        onChange={(event) => setPasswordInputValue(event.target.value)}
+                    />{/* onKeyDown={(event) => postTodo(event)} - change this to throw an error if both fields are not full */}
+
+                    <div className="stack-sm mt-3 mb-3">
+                        <Link to="/" className="btn btn-secondary me-2 text-decoration-none">
+                            Cancel
+                        </Link>
+                        <button type="submit" className="btn btn-gold ms-2 text-decoration-none">
+                            Sign up!
+                        </button>
                     </div>
-                </div>
+                    <p className="mt-3 text-center small">
+                        Already have an account?{" "}
+                        <Link to="/Login" className="link-gold">Login</Link>.
+                    </p>
+                </form>
+                {/* put link to send signup token here, and onclick (onsubmit?) */}
             </div>
         </div>
     )
