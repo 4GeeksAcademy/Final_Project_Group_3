@@ -105,6 +105,16 @@
   color: #111;
 }
 
+.price-pill-gold {
+  display: inline-block;
+  padding: .35rem .75rem;
+  border-radius: 999px;
+  background: #f6f6f6;
+  border: 1px solid rgba(0,0,0,.08);
+  font-weight: 700;
+  color: #d4af37;
+}
+
 .split-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
