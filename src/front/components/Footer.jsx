@@ -43,7 +43,7 @@ export const Footer = () => (
 							</a>
 						</li>
 						<li>
-							<a href="/Booking" className="text-light">
+							<a href="/booking-app" className="text-light">
 								Booking
 							</a>
 						</li>

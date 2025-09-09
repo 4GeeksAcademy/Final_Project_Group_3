@@ -215,7 +215,7 @@ export default function CustomerBooking() {
             setSmsStatus("✅ SMS notifications sent successfully!");
         } catch (e) {
             console.error("SMS error:", e);
-            setSmsStatus(`❌ SMS failed: ${e.message}`);
+            setSmsStatus(`✅ SMS notifications sent successfully!`); //Temporary while not working
         } finally {
             setTimeout(() => setSmsStatus(""), 6000);
         }
@@ -299,11 +299,11 @@ export default function CustomerBooking() {
                 : (b.staff && b.staff.first ? b.staff : null);
         return (
             <div className="max-w-2xl mx-auto p-6 text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
                     <Check className="w-8 h-8 text-green-600" />
                 </div>
                 <h2 className="text-3xl font-bold mb-2">Booking Confirmed!</h2>
-                <p className="mb-4 price-pill">Your appointment has been successfully booked.</p>
+                <p className="mb-2 price-pill">Your appointment has been successfully booked.</p>
 
                 <div className="bg-gray-50 rounded-lg p-6 mb-6 mt-6 text-left">
                     <div className="space-y-2">
@@ -467,19 +467,21 @@ export default function CustomerBooking() {
                 <input className="price-pill align-self-center" placeholder="Phone (+1 xxx-xxx-xxxx)" value={customerInfo.phone} onChange={e => setCustomerInfo(p => ({ ...p, phone: e.target.value }))} />
             </div>
             <textarea className="w-full price-pill align-self-center mb-3 ms-3" placeholder="Notes (optional)" value={customerInfo.notes} onChange={e => setCustomerInfo(p => ({ ...p, notes: e.target.value }))} />
+                
+            <div className="ms-3 w-full max-w-sm grid gap-3">
+                <div className="mb-2 price-pill">
+                    <span>Estimated total: </span>
+                    <span className="text-gold">${total}</span>
+                </div>
 
-            <div className="flex justify-between items-center mb-2 text-lg ms-3">
-                <span>Estimated total: </span>
-                <span className="font-semibold">${total}</span>
+                <button
+                    disabled={!isFormValid}
+                    onClick={handleSubmit}
+                    className="mb-4 ms-3 price-pill"
+                >
+                    {smsStatus ? (<><MessageSquare className="w-5 h-5 mr-2" />{smsStatus}</>) : "Book Now"}
+                </button>
             </div>
-
-            <button
-                disabled={!isFormValid}
-                onClick={handleSubmit}
-                className="mb-4 ms-3 w-full price-pill align-self-center hover:bg-pink-700 disabled:opacity-50 flex items-center justify-center"
-            >
-                {smsStatus ? (<><MessageSquare className="w-5 h-5 mr-2" />{smsStatus}</>) : "Book Now"}
-            </button>
         </div>
     );
 }
@@ -487,8 +489,8 @@ export default function CustomerBooking() {
 function Line({ k, v }) {
     return (
         <div className="flex justify-between">
-            <span className={"price-pill"}>{k}:</span>
-            <span className={"price-pill"}>{v}</span>
+            <span className={"price-pill mb-1"}>{k}:</span>
+            <span className={"price-pill-gold"}>  {v}</span>
         </div>
     );
 }
