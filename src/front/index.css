@@ -193,7 +193,6 @@
 }
 
 .auth-title {
-  text-align: center;
   font-weight: 800;
   font-size: clamp(1.6rem, 2.4vw, 2rem);
   margin-bottom: 1rem;
@@ -229,4 +228,32 @@
 .link-gold:hover {
   color: var(--hover);
   text-decoration: underline;
+}
+
+.time-pill {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+  padding: 1vb;
+  background: #f6f6f6;
+  border: 1px solid rgba(0,0,0,.08);
+  font-weight: 700;;
+}
+
+.time-pill:hover {
+  border-color: var(--gold) !important;              /* make sure it wins */
+  box-shadow: 0 0 0 .2rem rgba(212,175,55,.30),      /* soft outer glow */
+              0 2px 8px rgba(0,0,0,.06);             /* subtle lift */
+  transform: translateY(-1px);
+}
+
+.time-pill:focus-visible {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 .25rem rgba(212,175,55,.35);
+}
+
+.time-pill.selected {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 .2rem rgba(212,175,55,.30);
 }
