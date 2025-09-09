@@ -13,20 +13,20 @@ export const Navbar = () => {
 
 	return (
 		<nav className="navbar navbar-dark bg-dark">
-			<div className="container">
+			<div className="container mb-1">
 				<Link to="/" className="text-decoration-none">
-					<span className="navbar-brand mb-0 h1">Icon Nails & Spa</span>
+					<span className="navbar-brand mb-0 h1 gold-title">Icon Nails & Spa</span>
 				</Link>
 				{/* Invisible div pushes all the buttons over */}
 				<div className="ms-auto"></div>
 				<Link to="/OurTeam" className="text-decoration-none">
-					<span className="navbar-text mb-0 highlight-on-hover">Our Team</span>
+					<span className="diff-text mb-0 highlight-on-hover">Our Team</span>
 				</Link>
 				<Link to="/Services" className="text-decoration-none">
-					<span className="navbar-text mb-0 ms-3 highlight-on-hover">Services</span>
+					<span className="diff-text mb-0 ms-3 highlight-on-hover">Services</span>
 				</Link>
 				<Link to="/booking-app" className="text-decoration-none">
-					<span className="navbar-text mb-0 ms-3 highlight-on-hover">Booking</span>
+					<span className="diff-text mb-0 ms-3 highlight-on-hover">Booking</span>
 				</Link>
 				<div className="ms-4">
 					<div className="dropdown" style={{ position: 'relative' }}>
@@ -40,20 +40,20 @@ export const Navbar = () => {
 							{loggedIn ? (
 								<span>Account </span>
 							) : (
-								<span>Sign up </span>
+								<span className="button-text">Login </span>
 							)}
 						</button>
 						<ul className="dropdown-menu dropdown-menu-end bg-dark" aria-labelledby="dropdownMenuButton">
 							{loggedIn ? (
 								<>
-									<li><a className="dropdown-item text-warning nav-drop" href="/account">My Info</a></li>
-									<li><button className="dropdown-item text-light nav-drop" onClick={logout}>Logout</button></li>
+									<li><a className="dropdown-item text-warning nav-drop button-text" href="/account">My Info</a></li>
+									<li><button className="dropdown-item text-light nav-drop button-text" onClick={logout}>Logout</button></li>
 								</>
 							) : (
 								<>
-									<li><a className="dropdown-item text-warning nav-drop" href="/login">Login</a></li>
-									<li><a className="dropdown-item text-light nav-drop" href="/login">Staff Login</a></li>
-									<li><a className="dropdown-item text-light nav-drop" href="/signup">Sign Up</a></li>
+									<li><a className="dropdown-item text-light nav-drop button-text" href="/login">Login</a></li>
+									<li><a className="dropdown-item text-light nav-drop button-text" href="/login">Staff Login</a></li>
+									<li><a className="dropdown-item text-light nav-drop button-text" href="/signup">Sign Up</a></li>
 								</>
 							)}
 

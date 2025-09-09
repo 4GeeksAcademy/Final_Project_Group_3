@@ -191,7 +191,7 @@ export default function CustomerBooking() {
 
     const getAvailableDates = () => {
         const out = [], today = new Date();
-        for (let i = 1; i <= 14; i++) { const d = new Date(today); d.setDate(today.getDate() + i); out.push(d.toISOString().split("T")[0]); }
+        for (let i = -1; i <= 30; i++) { const d = new Date(today); d.setDate(today.getDate() + i); out.push(d.toISOString().split("T")[0]); }
         return out;
     };
     const formatDate = (s) => new Date(s + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
@@ -335,7 +335,7 @@ export default function CustomerBooking() {
                 {smsStatus && <div className="mb-6 p-3 bg-blue-50 border border-blue-200 rounded">{smsStatus}</div>}
 
                 <div className="flex gap-3 justify-center">
-                    <button onClick={() => setCurrentBooking(null)} className="mb-5 price-pill">
+                    <button onClick={() => setCurrentBooking(null)} className="mb-3 mt-4 price-pill">
                         Book Another
                     </button>
                 </div>
@@ -346,7 +346,7 @@ export default function CustomerBooking() {
     // ---- Booking form ----
     return (
         <div className="max-w-4xl mx-auto p-6">
-            <div className="text-center mb-6">
+            <div className="text-center mb-4 mt-5">
                 <h2 className="text-2xl font-semibold">Book Your Appointment</h2>
                 <p className="text-gray-600">Choose a service, specialist, date, time, and payment method</p>
             </div>
@@ -394,7 +394,11 @@ export default function CustomerBooking() {
 
 
             <h3 className="text-lg font-semibold mb-3 ms-3">Select Date</h3>
-            <select value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="ms-3 w-full price-pill align-self-center mb-4 focus:ring-2 focus:ring-pink-500">
+            <select value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="ms-3 w-full price-pill align-self-center mb-4 "
+                style={{
+                            borderStyle: "solid",
+                            borderColor: selectedDate ? "var(--gold)" : "transparent",
+                        }}>
                 <option value="">Choose a date</option>
                 {getAvailableDates().map(d => <option key={d} value={d}>{new Date(d + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</option>)}
             </select>
@@ -417,11 +421,11 @@ export default function CustomerBooking() {
             <h3 className="text-lg font-semibold mb-3 ms-3">Payment</h3>
             <div className="flex flex-col gap-4 mb-4 ms-3">
                 <div className="flex gap-4 mb-2">
-                    <label className={`price-pill align-self-center cursor-pointer ${paymentMethod === "card" ? "border-pink-500 bg-pink-50" : "hover:border-pink-300"}`}>
+                    <label className={`price-pill align-self-center cursor-pointer ${paymentMethod === "card"}`}>
                         <input type="radio" name="pay" value="card" className="mr-2" checked={paymentMethod === "card"} onChange={() => setPaymentMethod("card")} />
                         Card
                     </label>
-                    <label className={`price-pill align-self-center cursor-pointer ${paymentMethod === "cash" ? "border-pink-500 bg-pink-50" : "hover:border-pink-300"}`}>
+                    <label className={`price-pill align-self-center cursor-pointer ${paymentMethod === "cash"}`}>
                         <input type="radio" name="pay" value="cash" className="mr-2" checked={paymentMethod === "cash"} onChange={() => setPaymentMethod("cash")} />
                         Cash
                     </label>
@@ -490,7 +494,7 @@ function Line({ k, v }) {
     return (
         <div className="flex justify-between">
             <span className={"price-pill mb-1"}>{k}:</span>
-            <span className={"price-pill-gold"}>  {v}</span>
+            <span className={"price-pill-gold ms-1"}>{v}</span>
         </div>
     );
 }

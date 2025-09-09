@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export const Footer = () => (
 	<footer className="bg-dark text-light py-5">
@@ -13,10 +14,10 @@ export const Footer = () => (
 				{/* Social Media */}
 				<div className="col-md-4 mb-3">
 					<h5>Follow Us</h5>
-					<a className="btn text-light mx-2" onClick={() => {window.open("https://instagram.com");}}>
+					<a className="btn text-light mx-2" onClick={() => { window.open("https://instagram.com"); }}>
 						<i className="fab fa-instagram fa-lg"></i>
 					</a>
-					<a className="btn text-light mx-2" onClick={() => {window.open("https://facebook.com");}}>
+					<a className="btn text-light mx-2" onClick={() => { window.open("https://facebook.com"); }}>
 						<i className="fab fa-facebook fa-lg"></i>
 					</a>
 				</div>
@@ -38,24 +39,24 @@ export const Footer = () => (
 					<h6>Quick Links</h6>
 					<ul className="list-unstyled small">
 						<li>
-							<a href="/" className="text-light">
-								Home
-							</a>
+							<Link to="/" className="text-decoration-none text-light">
+								<span className="highlight-on-hover">Home</span>
+							</Link>
 						</li>
 						<li>
-							<a href="/booking-app" className="text-light">
-								Booking
-							</a>
+							<Link to="/OurTeam" className="text-decoration-none text-light">
+								<span className="highlight-on-hover">Our Team</span>
+							</Link>
 						</li>
 						<li>
-							<a href="/Services" className="text-light">
-								Services
-							</a>
+							<Link to="/Services" className="text-decoration-none text-light">
+								<span className="highlight-on-hover">Services</span>
+							</Link>
 						</li>
 						<li>
-							<a href="/OurTeam" className="text-light">
-								Our Team
-							</a>
+							<Link to="/booking-app" className="text-decoration-none text-light">
+								<span className="highlight-on-hover">Booking</span>
+							</Link>
 						</li>
 					</ul>
 				</div>
@@ -70,9 +71,11 @@ export const Footer = () => (
 							rel="noopener noreferrer"
 							className="text-decoration-none text-light"
 						>
+							<span className="highlight-on-hover">
 							1634 N Federal Hwy,
 							<br />
 							Fort Lauderdale, FL 33305
+							</span>
 						</a>
 					</p>
 				</div>
@@ -82,10 +85,13 @@ export const Footer = () => (
 					<h5>Call Us</h5>
 					<p>
 						<a
-							href="tel:+15612345678"
+							href="tel:+19545550123"
 							className="text-decoration-none text-light"
 						>
-							<i className="fa-solid fa-phone me-2"></i>(561) 234-5678
+							<span className="highlight-on-hover">
+							<i className="fa-solid fa-phone me-2"></i>
+							(954) 555-0123
+							</span>
 						</a>
 					</p>
 
@@ -95,7 +101,9 @@ export const Footer = () => (
 							href="mailto:info@nailsspa.com"
 							className="text-decoration-none text-light"
 						>
+							<span className="highlight-on-hover">
 							<i className="fa-solid fa-envelope me-2"></i>info@nailsspa.com
+							</span>
 						</a>
 					</p>
 				</div>
