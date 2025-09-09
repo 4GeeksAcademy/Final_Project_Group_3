@@ -299,7 +299,7 @@ export default function CustomerBooking() {
                 : (b.staff && b.staff.first ? b.staff : null);
         return (
             <div className="max-w-2xl mx-auto p-6 text-center">
-                <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 flex items-center justify-center mx-auto mb-3">
                     <Check className="w-8 h-8 text-green-600" />
                 </div>
                 <h2 className="text-3xl font-bold mb-2">Booking Confirmed!</h2>
@@ -335,7 +335,7 @@ export default function CustomerBooking() {
                 {smsStatus && <div className="mb-6 p-3 bg-blue-50 border border-blue-200 rounded">{smsStatus}</div>}
 
                 <div className="flex gap-3 justify-center">
-                    <button onClick={() => setCurrentBooking(null)} className="mb-3 mt-4 price-pill">
+                    <button onClick={() => setCurrentBooking(null)} className="mb-3 mt-4 time-pill">
                         Book Another
                     </button>
                 </div>
@@ -347,12 +347,12 @@ export default function CustomerBooking() {
     return (
         <div className="max-w-4xl mx-auto p-6">
             <div className="text-center mb-4 mt-5">
-                <h2 className="text-2xl font-semibold">Book Your Appointment</h2>
+                <h2 className="text-2xl auth-title">Book Your Appointment</h2>
                 <p className="text-gray-600">Choose a service, specialist, date, time, and payment method</p>
             </div>
 
-            <h3 className="text-lg font-semibold mb-3 ms-3">Choose Your Nail Technician</h3>
-            <div className="row gx-3 ps-2 mb-4 ">
+            <h3 className="text-lg auth-title mb-3 ms-3">Choose Your Nail Technician</h3>
+            <div className="row gx-3 ps-2 mb-5 ">
                 {staff.map((item, i) => (
                     <div
                         key={item.id || i}
@@ -365,7 +365,7 @@ export default function CustomerBooking() {
                 ))}
             </div>
 
-            <h3 className="text-lg font-semibold mb-3 ms-3">Select a Service</h3>
+            <h3 className="text-lg auth-title mb-3 ms-3">Select a Service</h3>
 
             <div className="row g-4 mb-4 ms-3">
                 {SERVICES_BY_CATEGORY.map((section) => (
@@ -393,8 +393,8 @@ export default function CustomerBooking() {
             </div>
 
 
-            <h3 className="text-lg font-semibold mb-3 ms-3">Select Date</h3>
-            <select value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="ms-3 w-full price-pill align-self-center mb-4 "
+            <h3 className="text-lg auth-title mb-3 ms-3">Select Date</h3>
+            <select value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="ms-3 w-full time-pill border mb-4"
                 style={{
                             borderStyle: "solid",
                             borderColor: selectedDate ? "var(--gold)" : "transparent",
@@ -403,29 +403,28 @@ export default function CustomerBooking() {
                 {getAvailableDates().map(d => <option key={d} value={d}>{new Date(d + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</option>)}
             </select>
 
-            <h3 className="text-lg font-semibold mb-3 ms-3">Select Time</h3>
-            <div className="grid grid-cols-3 mb-4 ms-3">
+            <h3 className="text-lg auth-title mb-3 ms-3">Select Time</h3>
+            <div className="grid grid-cols-3 mb-3 ms-3">
                 {TIME_SLOTS.map(t => (
                     <button key={t} type="button" onClick={() => setSelectedTime(t)}
-                        className='price-pill align-self-center'
+                        className={`time-pill ${selectedTime === t ? "selected" : ""} ms-2`}
                         style={{
                             transition: "all 0.2s ease-in-out",
                             borderStyle: "solid",
-                            borderColor: selectedTime === t ? "var(--gold)" : "transparent",
                         }}>
                         {t}
                     </button>
                 ))}
             </div>
 
-            <h3 className="text-lg font-semibold mb-3 ms-3">Payment</h3>
+            <h3 className="text-lg auth-title mb-3 ms-3">Payment</h3>
             <div className="flex flex-col gap-4 mb-4 ms-3">
                 <div className="flex gap-4 mb-2">
-                    <label className={`price-pill align-self-center cursor-pointer ${paymentMethod === "card"}`}>
+                    <label className={`time-pill border cursor-pointer ${paymentMethod === "card"}`}>
                         <input type="radio" name="pay" value="card" className="mr-2" checked={paymentMethod === "card"} onChange={() => setPaymentMethod("card")} />
                         Card
                     </label>
-                    <label className={`price-pill align-self-center cursor-pointer ${paymentMethod === "cash"}`}>
+                    <label className={`time-pill border ms-2 cursor-pointer ${paymentMethod === "cash"}`}>
                         <input type="radio" name="pay" value="cash" className="mr-2" checked={paymentMethod === "cash"} onChange={() => setPaymentMethod("cash")} />
                         Cash
                     </label>
@@ -435,53 +434,52 @@ export default function CustomerBooking() {
                     {[0, 5, 10, 15, 20].map(t => (
                         <button key={t} type="button"
                             onClick={() => setTip(String(t))}
-                            className='price-pill align-self-center'
+                            className={`time-pill ${Number(tip) === t ? "selected" : ""} ms-2`}
                             style={{
                                 transition: "all 0.2s ease-in-out",
                                 borderStyle: "solid",
-                                borderColor: Number(tip) === t ? "var(--gold)" : "transparent",
                             }}>
                             Tip ${t}
                         </button>
                     ))}
-                    <input className="price-pill align-self-center md:col-span-2" placeholder="Custom tip ($)"
+                    <input className="time-pill border align-self-center md:col-span-2 ms-2" placeholder="Custom tip ($)"
                         value={tip} onChange={(e) => setTip(e.target.value.replace(/[^\d.]/g, ""))} />
                 </div>
 
                 {paymentMethod === "card" && (
-                    <div className="grid md:grid-cols-2 gap-3">
-                        <input className="price-pill align-self-center" placeholder="Name on card" value={cardName} onChange={(e) => setCardName(e.target.value)} />
-                        <input className="price-pill align-self-center" placeholder="Card number"
+                    <div className="grid md:grid-cols-2">
+                        <input className="time-pill border" placeholder="Name on card" value={cardName} onChange={(e) => setCardName(e.target.value)} />
+                        <input className="time-pill border ms-1" placeholder="Card number"
                             value={cardNumber} onChange={(e) => setCardNumber(cleanDigits(e.target.value).slice(0, 19))} />
-                        <input className="price-pill align-self-center" placeholder="MM/YY" value={cardExpiry}
+                        <input className="time-pill border ms-1" placeholder="MM/YY" value={cardExpiry}
                             onChange={(e) => { let v = e.target.value.replace(/[^\d]/g, "").slice(0, 4); if (v.length >= 3) v = v.slice(0, 2) + "/" + v.slice(2); setCardExpiry(v); }} />
-                        <input className="price-pill align-self-center" placeholder="CVC"
+                        <input className="time-pill border ms-1" placeholder="CVC"
                             value={cardCvc} onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, "").slice(0, 4))} />
                     </div>
                 )}
             </div>
 
-            <h3 className="text-lg font-semibold mb-3 ms-3">Your Information</h3>
+            <h3 className="text-lg auth-title mb-3 ms-3">Your Information</h3>
             <div className="grid md:grid-cols-2 gap-4 mb-3 ms-3">
-                <input className="price-pill align-self-center" placeholder="First Name" value={customerInfo.firstName} onChange={e => setCustomerInfo(p => ({ ...p, firstName: e.target.value }))} />
-                <input className="price-pill align-self-center" placeholder="Last Name" value={customerInfo.lastName} onChange={e => setCustomerInfo(p => ({ ...p, lastName: e.target.value }))} />
+                <input className="time-pill" placeholder="First Name" value={customerInfo.firstName} onChange={e => setCustomerInfo(p => ({ ...p, firstName: e.target.value }))} />
+                <input className="time-pill" placeholder="Last Name" value={customerInfo.lastName} onChange={e => setCustomerInfo(p => ({ ...p, lastName: e.target.value }))} />
             </div>
             <div className="grid md:grid-cols-2 gap-4 mb-3 ms-3">
-                <input className="price-pill align-self-center" placeholder="Email" value={customerInfo.email} onChange={e => setCustomerInfo(p => ({ ...p, email: e.target.value }))} />
-                <input className="price-pill align-self-center" placeholder="Phone (+1 xxx-xxx-xxxx)" value={customerInfo.phone} onChange={e => setCustomerInfo(p => ({ ...p, phone: e.target.value }))} />
+                <input className="time-pill" placeholder="Email" value={customerInfo.email} onChange={e => setCustomerInfo(p => ({ ...p, email: e.target.value }))} />
+                <input className="time-pill" placeholder="Phone (+1 xxx-xxx-xxxx)" value={customerInfo.phone} onChange={e => setCustomerInfo(p => ({ ...p, phone: e.target.value }))} />
             </div>
             <textarea className="w-full price-pill align-self-center mb-3 ms-3" placeholder="Notes (optional)" value={customerInfo.notes} onChange={e => setCustomerInfo(p => ({ ...p, notes: e.target.value }))} />
                 
             <div className="ms-3 w-full max-w-sm grid gap-3">
-                <div className="mb-2 price-pill">
-                    <span>Estimated total: </span>
+                <div className="mb-2 price-pill button-text">
+                    <span className="">Estimated total: </span>
                     <span className="text-gold">${total}</span>
                 </div>
 
                 <button
                     disabled={!isFormValid}
                     onClick={handleSubmit}
-                    className="mb-4 ms-3 price-pill"
+                    className="mb-4 ms-3 time-pill"
                 >
                     {smsStatus ? (<><MessageSquare className="w-5 h-5 mr-2" />{smsStatus}</>) : "Book Now"}
                 </button>
