@@ -43,44 +43,44 @@ export const Login = () => {
     };
 
     return (
-        <div>
-            <div className="d-flex display-items-center justify-content-center">
-                <div className="container">
-                    <div className="row">
-                        <div className="col-2"></div>
-                        <div className="col-8 d-flex justify-content-center">
-                            <div className="border border-1 border-secondary rounded p-3 d-flex justify-content-center align-items-center mt-5 mb-5" style={{ height: "65vh", width: "30vw", boxSizing: "border-box" }}>
-                                <div className="d-flex flex-column align-items-center justify-content-center">
-                                    <h1 className="mx-auto mb-3">Log in!</h1>
-                                    <div>
-                                        <input
-                                            className="form-control border-1 border-secondary focus-ring-0 m-1"
-                                            value={emailInputValue}
-                                            placeholder="email"
-                                            onChange={(event) => setEmailInputValue(event.target.value)}
-                                        />{/* onKeyDown={(event) => postTodo(event)} - change this to throw an error if both fields are not full */}
-                                        <input
-                                            className="form-control border-1 border-secondary focus-ring-0 m-1"
-                                            value={passwordInputValue}
-                                            placeholder="password"
-                                            onChange={(event) => setPasswordInputValue(event.target.value)}
-                                        />{/* onKeyDown={(event) => postTodo(event)} - change this to throw an error if both fields are not full */}
-                                        <div className="d-flex justify-content-center align-items-center mt-4 mb-3">
-                                            <Link to="/" className="btn btn-secondary ms-2 text-decoration-none">
-                                                Cancel
-                                            </Link>
-                                            <button type="text" onClick={() => handleLogin(emailInputValue, passwordInputValue)} className="btn btn-gold ms-2 text-decoration-none">
-                                                Log in!
-                                            </button>
-                                        </div>
-                                        <span>Don't have an account? <a href="/Signup" className="text-gold">Sign up.</a></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-2"></div>
-                    </div>
+        <div className="auth-wrapper">
+            <div className="auth-card">
+                <h1 className="auth-title">Log in!</h1>
+
+                <div className="mb-3">
+                    <input
+                        className="form-control form-control-lg"
+                        placeholder="email"
+                        value={emailInputValue}
+                        onChange={(event) => setEmailInputValue(event.target.value)}
+                    />
                 </div>
+
+                <div className="mb-3">
+                    <input
+                        className="form-control form-control-lg"
+                        type="password"
+                        placeholder="password"
+                        value={passwordInputValue}
+                        onChange={(event) => setPasswordInputValue(event.target.value)}
+                    />
+                </div>
+
+                <div className="stack-sm mt-3">
+                    <Link to="/" className="btn btn-secondary">Cancel</Link>
+                    <button
+                        type="button"
+                        className="btn btn-gold"
+                        onClick={() => handleLogin(emailInputValue, passwordInputValue)}
+                    >
+                        Log in!
+                    </button>
+                </div>
+
+                <p className="mt-3 text-center small">
+                    Don’t have an account?{" "}
+                    <Link to="/Signup" className="link-gold">Sign up</Link>.
+                </p>
             </div>
         </div>
     )

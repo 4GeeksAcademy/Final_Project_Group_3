@@ -21,7 +21,7 @@ export default function BookingApp() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <nav className="bg-pink-600 text-white">
+            {/* <nav className="bg-pink-600 text-white">
                 <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
                     <div className="flex gap-2">
                         <button
@@ -38,7 +38,7 @@ export default function BookingApp() {
                         </button>
                     </div>
                 </div>
-            </nav>
+            </nav> */}
 
             {view === "booking" && <CustomerBooking />}
 
