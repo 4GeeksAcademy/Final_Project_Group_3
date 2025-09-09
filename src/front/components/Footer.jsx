@@ -15,10 +15,14 @@ export const Footer = () => (
 				<div className="col-md-4 mb-3">
 					<h5>Follow Us</h5>
 					<a className="btn text-light mx-2" onClick={() => { window.open("https://instagram.com"); }}>
-						<i className="fab fa-instagram fa-lg"></i>
+						<span className="highlight-on-hover">
+							<i className="fab fa-instagram fa-lg"></i>
+						</span>
 					</a>
 					<a className="btn text-light mx-2" onClick={() => { window.open("https://facebook.com"); }}>
+						<span className="highlight-on-hover">
 						<i className="fab fa-facebook fa-lg"></i>
+						</span>
 					</a>
 				</div>
 
