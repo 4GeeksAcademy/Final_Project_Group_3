@@ -13,7 +13,7 @@ export const InfoTab = () => {
         phone: "Loading..."
     });
 
-    async function getMe() {
+    async function getMe(isUpdated) {
         try {
             const userId = localStorage.getItem("user-id");
             {/* dynamic links in frontend fetches | use import.meta.env.VITE_BACKEND_URL, plug via variable */ }
@@ -31,7 +31,8 @@ export const InfoTab = () => {
                 email: data.email,
                 phone: data.phone
             });
-            setShowToast(true);
+
+            if (isUpdated) setShowToast(true);
             setTimeout(() => setShowToast(false), 3000);
         } catch (err) {
             console.error(err);
@@ -59,19 +60,20 @@ export const InfoTab = () => {
             console.log("Updated user:", data);
 
             // update form with latest server response
-            setForm({
-                first: data.first,
-                last: data.last,
-                email: data.email,
-                phone: data.phone
-            });
+            // setForm({
+            //     first: data.first,
+            //     last: data.last,
+            //     email: data.email,
+            //     phone: data.phone
+            // });
+            getMe(true)
         } catch (err) {
             console.error("PUT failed:", err);
         }
     };
 
     useEffect(() => {
-        getMe();
+        getMe(false);
     }, []);
 
 
