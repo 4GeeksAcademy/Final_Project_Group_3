@@ -47,32 +47,32 @@ export const Signup = () => {
                 <h1 className="auth-title">Sign Up!</h1>
                 <form onSubmit={createUser}>
                     <input
-                        className="form-control form-control-lg mb-3"
+                        className="form-control time-pill mb-3"
                         value={fNameInputValue}
                         placeholder="First Name"
                         onChange={(event) => setFNameInputValue(event.target.value)}
                     />
                     <input
-                        className="form-control form-control-lg mb-3"
+                        className="form-control time-pill mb-3"
                         value={lNameInputValue}
                         placeholder="Last Name"
                         onChange={(event) => setLNameInputValue(event.target.value)}
                     />
                     <input
-                        className="form-control form-control-lg mb-3"
+                        className="form-control time-pill mb-3"
                         value={emailInputValue}
                         placeholder="E-Mail"
                         onChange={(event) => setEmailInputValue(event.target.value)}
                     />{/* onKeyDown={(event) => postTodo(event)} - change this to throw an error if both fields are not full */}
                     <input
-                        className="form-control form-control-lg mb-3"
+                        className="form-control time-pill mb-3"
                         value={phoneInputValue}
                         placeholder="Phone #"
                         type="tel"
                         onChange={(event) => setPhoneInputValue(event.target.value)}
                     />
                     <input
-                        className="form-control form-control-lg mb-3"
+                        className="form-control time-pill mb-3"
                         type="password"
                         value={passwordInputValue}
                         placeholder="Password"
