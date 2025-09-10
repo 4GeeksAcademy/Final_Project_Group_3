@@ -22,7 +22,7 @@ app.url_map.strict_slashes = False
 
 #adding CORS to allow cross-origin requests
 from flask_cors import CORS
-CORS(app, resources={r"/*": {"origins": "*"}})  # dev mode
+CORS(app, resources={r"/api/*": {"origins": "*"}})  # dev mode
 
 
 #not sure what this does or why i have to put it here, circle back

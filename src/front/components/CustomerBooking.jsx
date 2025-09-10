@@ -1,13 +1,11 @@
 // /frontend/src/components/CustomerBooking.jsx
 import React, { useState, useEffect, useMemo } from "react";
-import { Star, MessageSquare, Check } from "lucide-react";
+import { MessageSquare, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import ServiceCard from "../components/ServiceCard.jsx";
 import { SERVICES_BY_CATEGORY } from "../auth/servicesData.js";
 
 // ---- API base (Vite or CRA) ----
-// Use a Vite .env like: VITE_API_BASE=https://<YOUR-ID>-5000.app.github.dev
-// or set up a Vite proxy and leave VITE_API_BASE empty.
 const API_BASE =
     (typeof import.meta !== "undefined" &&
         import.meta.env &&
@@ -21,11 +19,12 @@ const API_ROOT = String(API_BASE || "").replace(/\/+$/, "");
 // ---- Storage key ----
 const LS_KEY = "salonBookings";
 
+// Build a local Date from "YYYY-MM-DD" + "HH:MM"
 function combineLocalDateTime(yyyy_mm_dd, hhmm) {
     if (!yyyy_mm_dd || !hhmm) return null;
     const [H, M] = hhmm.split(":").map(Number);
     const [yyyy, mm, dd] = yyyy_mm_dd.split("-").map(Number);
-    return new Date(yyyy, mm - 1, dd, H, M, 0, 0); // local
+    return new Date(yyyy, mm - 1, dd, H, M, 0, 0);
 }
 
 // Format "HH:MM" -> "h:MM AM/PM" for display
@@ -36,9 +35,12 @@ function hhmmTo12(hhmm) {
     return `${h12}:${String(M).padStart(2, "0")} ${am ? "AM" : "PM"}`;
 }
 
-// Generate a list of HH:MM between open/close every stepMin
+// Generate "HH:MM" slots between open and close (inclusive) every stepMin
 function makeSlots(open = "09:00", close = "18:30", stepMin = 30) {
-    const toMin = (s) => { const [h, m] = s.split(":").map(Number); return h * 60 + m; };
+    const toMin = (s) => {
+        const [h, m] = s.split(":").map(Number);
+        return h * 60 + m;
+    };
     const pad = (n) => String(n).padStart(2, "0");
     const out = [];
     for (let m = toMin(open); m <= toMin(close); m += stepMin) {
@@ -59,13 +61,73 @@ function overlaps(startA, minA, startB, minB) {
 const BUSINESS_PHONE = "+17864935524";
 
 const FALLBACK_STAFF = [
-    { id: "temp-1", first: "Ava", last: "Nguyen", role: "Staff", photoUrl: "https://img.freepik.com/premium-photo/close-up-beautiful-asian-woman-beauty-blogger_1258-31223.jpg" },
-    { id: "temp-2", first: "Marco", last: "Cruz", role: "Staff", photoUrl: "https://plus.unsplash.com/premium_photo-1689530775582-83b8abdb5020?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cmFuZG9tJTIwcGVyc29ufGVufDB8fDB8fHww" },
-    { id: "temp-3", first: "Jin", last: "Park", role: "Staff", photoUrl: "https://images.pexels.com/photos/3761521/pexels-photo-3761521.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500" },
-    { id: "temp-4", first: "Sofia", last: "Rivera", role: "Staff", photoUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cmFuZG9tJTIwcGVvcGxlfGVufDB8fDB8fHww" },
-    { id: "temp-5", first: "Noah", last: "Kim", role: "Staff", photoUrl: "https://images.pexels.com/photos/1704488/pexels-photo-1704488.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500" },
-    { id: "temp-6", first: "Lena", last: "Martinez", role: "Staff", photoUrl: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500" },
+    {
+        id: "temp-1",
+        first: "Ava",
+        last: "Nguyen",
+        role: "Staff",
+        photoUrl:
+            "https://img.freepik.com/premium-photo/close-up-beautiful-asian-woman-beauty-blogger_1258-31223.jpg",
+    },
+    {
+        id: "temp-2",
+        first: "Marco",
+        last: "Cruz",
+        role: "Staff",
+        photoUrl:
+            "https://plus.unsplash.com/premium_photo-1689530775582-83b8abdb5020?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cmFuZG9tJTIwcGVyc29ufGVufDB8fDB8fHww",
+    },
+    {
+        id: "temp-3",
+        first: "Jin",
+        last: "Park",
+        role: "Staff",
+        photoUrl:
+            "https://images.pexels.com/photos/3761521/pexels-photo-3761521.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+    },
+    {
+        id: "temp-4",
+        first: "Sofia",
+        last: "Rivera",
+        role: "Staff",
+        photoUrl:
+            "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cmFuZG9tJTIwcGVvcGxlfGVufDB8fDB8fHww",
+    },
+    {
+        id: "temp-5",
+        first: "Noah",
+        last: "Kim",
+        role: "Staff",
+        photoUrl:
+            "https://images.pexels.com/photos/1704488/pexels-photo-1704488.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+    },
+    {
+        id: "temp-6",
+        first: "Lena",
+        last: "Martinez",
+        role: "Staff",
+        photoUrl:
+            "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+    },
 ];
+
+/** Load bookings for a single staff & date, normalized to:
+ *   [{ start: Date, duration: number }, ...]
+ */
+async function fetchDayBookingsFor(staffId, yyyy_mm_dd) {
+    if (!staffId || !yyyy_mm_dd) return [];
+    const base = import.meta.env.VITE_BACKEND_URL;
+    const url = `${base}/api/appointments?staff_id=${staffId}&date=${yyyy_mm_dd}`;
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const raw = await res.json();
+    return (Array.isArray(raw) ? raw : []).map((b) => ({
+        start: new Date(
+            b.start || b.starts_at || b.startISO || `${yyyy_mm_dd}T${b.time || "00:00:00"}`
+        ),
+        duration: Number(b.duration ?? b.duration_min ?? b.minutes ?? 0),
+    }));
+}
 
 export default function CustomerBooking() {
     const [staff, setStaff] = useState([]);
@@ -76,7 +138,7 @@ export default function CustomerBooking() {
     const [selectedDate, setSelectedDate] = useState("");
     const [selectedTime, setSelectedTime] = useState("");
     const [selectedServices, setSelectedServices] = useState([]);
-    const [dayBookings, setDayBookings] = useState([]); // normalized: { start: Date, duration: number }[]
+    const [dayBookings, setDayBookings] = useState([]); // [{start, duration}]
     const slots = useMemo(() => makeSlots("09:00", "18:30", 30), []);
 
     // total duration of selected services
@@ -99,16 +161,18 @@ export default function CustomerBooking() {
             } catch (e) {
                 if (!cancelled) {
                     setErr(e.message || "Failed to load staff");
-                    setStaff(FALLBACK_STAFF); // graceful fallback
+                    setStaff(FALLBACK_STAFF);
                 }
             } finally {
                 if (!cancelled) setLoading(false);
             }
         })();
-        return () => { cancelled = true; };
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
-    // Pull that day's bookings for the chosen tech; normalize shape
+    // Load/refresh this tech's bookings for the selected date
     useEffect(() => {
         if (selectedStaff < 0 || !selectedDate) {
             setDayBookings([]);
@@ -117,55 +181,37 @@ export default function CustomerBooking() {
         let cancelled = false;
 
         (async () => {
-            try {
-                const staffId =
-                    typeof selectedStaff === "number"
-                        ? (staff[selectedStaff]?.id ?? selectedStaff)
-                        : selectedStaff?.id;
+            const staffId =
+                typeof selectedStaff === "number"
+                    ? staff?.[selectedStaff]?.id
+                    : selectedStaff?.id;
 
-                const base = import.meta.env.VITE_BACKEND_URL;
-                const url = `${base}/api/appointments?staff_id=${staffId}&date=${selectedDate}`;
-                const res = await fetch(url);
-                const raw = res.ok ? await res.json() : [];
-
-                const normalized = (Array.isArray(raw) ? raw : []).map(b => ({
-                    start: new Date(
-                        b.start ||
-                        b.starts_at ||
-                        b.startISO ||
-                        `${selectedDate}T${b.time || "00:00:00"}`
-                    ),
-                    duration: Number(b.duration ?? b.duration_min ?? b.minutes ?? 0),
-                }));
-
-                if (!cancelled) setDayBookings(normalized);
-            } catch {
-                if (!cancelled) setDayBookings([]);
-            }
+            const bookings = await fetchDayBookingsFor(staffId, selectedDate);
+            if (!cancelled) setDayBookings(bookings);
         })();
 
-        return () => { cancelled = true; };
+        return () => {
+            cancelled = true;
+        };
     }, [selectedStaff, selectedDate, staff]);
 
-    // If duration/date/staff change, clear previously picked time (so we revalidate)
-    useEffect(() => { setSelectedTime(""); }, [totalDuration, selectedDate, selectedStaff]);
+    // Clear previously picked time if duration/date/staff change
+    useEffect(() => {
+        setSelectedTime("");
+    }, [totalDuration, selectedDate, selectedStaff]);
 
     // Disable a slot if it would overlap an existing booking
     const slotDisabled = (hhmm) => {
         if (!selectedDate || totalDuration <= 0) return false;
         const start = combineLocalDateTime(selectedDate, hhmm);
-        return dayBookings.some(b => {
-            const bookedStart = new Date(b.starts_at);
-            const bookedMin = Number(b.duration_min || b.duration || 0);
-            return overlaps(start, totalDuration, bookedStart, bookedMin);
-        });
+        return dayBookings.some(b => overlaps(start, totalDuration, b.start, b.duration));
     };
 
-    const isSelected = (id) => selectedServices.some(s => s.id === id);
+    const isSelected = (id) => selectedServices.some((s) => s.id === id);
     const toggleService = (svc) =>
-        setSelectedServices(prev =>
-            prev.some(s => s.id === svc.id)
-                ? prev.filter(s => s.id !== svc.id)
+        setSelectedServices((prev) =>
+            prev.some((s) => s.id === svc.id)
+                ? prev.filter((s) => s.id !== svc.id)
                 : [...prev, svc]
         );
 
@@ -177,7 +223,11 @@ export default function CustomerBooking() {
     const [cardCvc, setCardCvc] = useState("");
 
     const [customerInfo, setCustomerInfo] = useState({
-        firstName: "", lastName: "", email: "", phone: "", notes: ""
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        notes: "",
     });
     const [smsStatus, setSmsStatus] = useState("");
     const [currentBooking, setCurrentBooking] = useState(null);
@@ -196,7 +246,10 @@ export default function CustomerBooking() {
     const validCvc = /^\d{3,4}$/.test(cardCvc);
 
     const numericTip = Number.isFinite(Number(tip)) ? Number(tip) : 0;
-    const servicesTotal = selectedServices.reduce((sum, s) => sum + (s.price || 0), 0);
+    const servicesTotal = selectedServices.reduce(
+        (sum, s) => sum + (s.price || 0),
+        0
+    );
     const total = servicesTotal + numericTip;
 
     const isFormValid = useMemo(() => {
@@ -212,12 +265,20 @@ export default function CustomerBooking() {
         if (paymentMethod === "cash") return basics;
         return basics && validCard && validExpiry && validCvc;
     }, [
-        selectedServices, selectedStaff, selectedDate, selectedTime,
-        paymentMethod, validCard, validExpiry, validCvc, customerInfo
+        selectedServices,
+        selectedStaff,
+        selectedDate,
+        selectedTime,
+        paymentMethod,
+        validCard,
+        validExpiry,
+        validCvc,
+        customerInfo,
     ]);
 
     const getAvailableDates = () => {
-        const out = [], today = new Date();
+        const out = [],
+            today = new Date();
         for (let i = -1; i <= 30; i++) {
             const d = new Date(today);
             d.setDate(today.getDate() + i);
@@ -227,7 +288,10 @@ export default function CustomerBooking() {
     };
     const formatDate = (s) =>
         new Date(s + "T00:00:00").toLocaleDateString("en-US", {
-            weekday: "long", month: "long", day: "numeric", year: "numeric"
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+            year: "numeric",
         });
 
     // ---- SMS call with detailed error reporting ----
@@ -238,16 +302,22 @@ export default function CustomerBooking() {
             const res = await fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ businessPhone: BUSINESS_PHONE, booking })
+                body: JSON.stringify({ businessPhone: BUSINESS_PHONE, booking }),
             });
             const text = await res.text();
             let data;
-            try { data = JSON.parse(text); } catch { data = { ok: false, error: text || `HTTP ${res.status}` }; }
-            if (!res.ok || data?.ok === false) throw new Error(data?.error || `HTTP ${res.status}`);
+            try {
+                data = JSON.parse(text);
+            } catch {
+                data = { ok: false, error: text || `HTTP ${res.status}` };
+            }
+            if (!res.ok || data?.ok === false)
+                throw new Error(data?.error || `HTTP ${res.status}`);
             setSmsStatus("✅ SMS notifications sent successfully!");
         } catch (e) {
             console.error("SMS error:", e);
-            setSmsStatus("✅ SMS notifications sent successfully!"); // temporary, while SMS not wired
+            // temporary while not wired:
+            setSmsStatus("✅ SMS notifications sent successfully!");
         } finally {
             setTimeout(() => setSmsStatus(""), 6000);
         }
@@ -258,20 +328,29 @@ export default function CustomerBooking() {
 
         const staffId =
             typeof selectedStaff === "number"
-                ? (staff[selectedStaff]?.id || selectedStaff)
+                ? staff?.[selectedStaff]?.id || selectedStaff
                 : selectedStaff?.id;
 
         const startsLocal = combineLocalDateTime(selectedDate, selectedTime);
-        if (!startsLocal) { alert("Pick a date & time"); return; }
+        if (!startsLocal) {
+            alert("Pick a date & time");
+            return;
+        }
 
         const payload = {
             staff_id: staffId,
-            starts_at: startsLocal.toISOString(),      // ISO string
-            date: selectedDate,          // also include split fields if your backend uses them
+            // local time ISO without timezone offset to keep admin readable as local
+            starts_at: startsLocal.toLocaleString("sv-SE").replace(" ", "T"),
+            date: selectedDate,
             time: selectedTime,
-            duration: durationMin,       // minutes
-            duration_min: durationMin,   // alt name
-            services: selectedServices.map(({ id, name, price, duration }) => ({ id, name, price, duration })),
+            duration: durationMin,
+            duration_min: durationMin,
+            services: selectedServices.map(({ id, name, price, duration }) => ({
+                id,
+                name,
+                price,
+                duration,
+            })),
             subtotal: servicesTotal,
             tip: Number(numericTip || 0),
             total: servicesTotal + Number(numericTip || 0),
@@ -301,22 +380,41 @@ export default function CustomerBooking() {
 
             const saved = await res.json();
 
+            setDayBookings(prev => [...prev, { start: startsLocal, duration: durationMin }]);
+
+            // Refresh the day's bookings so pills disable immediately
+            const fresh = await fetchDayBookingsFor(staffId, selectedDate);
+            setDayBookings(fresh);
+
             setCurrentBooking({
                 id: Date.now(),
                 staff: selectedStaff,
                 date: selectedDate,
                 time: selectedTime,
                 duration: durationMin,
-                services: selectedServices.map(({ id, name, price, duration }) => ({ id, name, price, duration })),
+                services: selectedServices.map(({ id, name, price, duration }) => ({
+                    id,
+                    name,
+                    price,
+                    duration,
+                })),
                 payment: {
                     method: paymentMethod,
                     tip: Number(numericTip || 0),
-                    card: paymentMethod === "card" ? { name: cardName.trim(), last4: cardLast4, expiry: cardExpiry } : undefined
+                    card:
+                        paymentMethod === "card"
+                            ? { name: cardName.trim(), last4: cardLast4, expiry: cardExpiry }
+                            : undefined,
                 },
                 customer: customerInfo,
-                totals: { service: servicesTotal, tip: Number(numericTip || 0), total: servicesTotal + Number(numericTip || 0) }
+                totals: {
+                    service: servicesTotal,
+                    tip: Number(numericTip || 0),
+                    total: servicesTotal + Number(numericTip || 0),
+                },
             });
 
+            // wipe sensitive fields
             setCardNumber("");
             setCardCvc("");
 
@@ -343,11 +441,17 @@ export default function CustomerBooking() {
                 }}
             >
                 <div className="ratio ratio-4x3 mb-2">
-                    <img src={photoUrl} alt={first} className="w-100 h-100 object-cover rounded-top" />
+                    <img
+                        src={photoUrl}
+                        alt={first}
+                        className="w-100 h-100 object-cover rounded-top"
+                    />
                 </div>
 
                 <div className="card-body p-2">
-                    <h6 className="mb-1">{first} {last}</h6>
+                    <h6 className="mb-1">
+                        {first} {last}
+                    </h6>
                     <p className="text-gold small mb-1">{role}</p>
                     <Link
                         to="/OurTeam"
@@ -365,16 +469,16 @@ export default function CustomerBooking() {
     if (currentBooking) {
         const b = currentBooking;
         const tech =
-            typeof b.staff === "number"
-                ? staff[b.staff]
-                : (b.staff && b.staff.first ? b.staff : null);
+            typeof b.staff === "number" ? staff[b.staff] : b.staff?.first ? b.staff : null;
         return (
             <div className="max-w-2xl mx-auto p-6 text-center">
                 <div className="w-16 h-16 flex items-center justify-center mx-auto mb-3">
                     <Check className="w-8 h-8 text-green-600" />
                 </div>
                 <h2 className="text-3xl font-bold mb-2">Booking Confirmed!</h2>
-                <p className="mb-2 price-pill">Your appointment has been successfully booked.</p>
+                <p className="mb-2 price-pill">
+                    Your appointment has been successfully booked.
+                </p>
 
                 <div className="bg-gray-50 rounded-lg p-6 mb-6 mt-6 text-left">
                     <div className="space-y-2">
@@ -391,20 +495,31 @@ export default function CustomerBooking() {
                                 <span className="price-pill">Technician not set</span>
                             )}
                         </div>
-                        <Line k="Services" v={b.services.map(x => x.name).join(", ")} />
+                        <Line k="Services" v={b.services.map((x) => x.name).join(", ")} />
                         <Line k="Date" v={formatDate(b.date)} />
                         <Line k="Time" v={b.time} />
-                        <Line k="Payment" v={`${b.payment.method}${b.payment.card ? ` •••• ${b.payment.card.last4}` : ""}`} />
+                        <Line
+                            k="Payment"
+                            v={`${b.payment.method}${b.payment.card ? ` •••• ${b.payment.card.last4}` : ""
+                                }`}
+                        />
                         <Line k="Subtotal" v={`$${b.totals.service}`} />
                         <Line k="Tip" v={`$${b.totals.tip}`} />
                         <Line k="Total" v={`$${b.totals.total}`} />
                     </div>
                 </div>
 
-                {smsStatus && <div className="mb-6 p-3 bg-blue-50 border border-blue-200 rounded">{smsStatus}</div>}
+                {smsStatus && (
+                    <div className="mb-6 p-3 bg-blue-50 border border-blue-200 rounded">
+                        {smsStatus}
+                    </div>
+                )}
 
                 <div className="flex gap-3 justify-center">
-                    <button onClick={() => setCurrentBooking(null)} className="mb-3 mt-4 time-pill">
+                    <button
+                        onClick={() => setCurrentBooking(null)}
+                        className="mb-3 mt-4 time-pill"
+                    >
                         Book Another
                     </button>
                 </div>
@@ -417,7 +532,9 @@ export default function CustomerBooking() {
         <div className="max-w-4xl mx-auto p-6">
             <div className="text-center mb-4 mt-5">
                 <h2 className="text-2xl auth-title">Book Your Appointment</h2>
-                <p className="text-gray-600">Choose a service, specialist, date, time, and payment method</p>
+                <p className="text-gray-600">
+                    Choose a service, specialist, date, time, and payment method
+                </p>
             </div>
 
             <h3 className="text-lg auth-title mb-3 ms-3">Choose Your Nail Technician</h3>
@@ -465,26 +582,35 @@ export default function CustomerBooking() {
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
                 className="ms-3 w-full time-pill border mb-4"
-                style={{ borderStyle: "solid", borderColor: selectedDate ? "var(--gold)" : "transparent" }}
+                style={{
+                    borderStyle: "solid",
+                    borderColor: selectedDate ? "var(--gold)" : "transparent",
+                }}
             >
                 <option value="">Choose a date</option>
-                {getAvailableDates().map(d => (
+                {getAvailableDates().map((d) => (
                     <option key={d} value={d}>
-                        {new Date(d + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
+                        {new Date(d + "T00:00:00").toLocaleDateString("en-US", {
+                            weekday: "long",
+                            month: "long",
+                            day: "numeric",
+                            year: "numeric",
+                        })}
                     </option>
                 ))}
             </select>
 
             <h3 className="text-lg auth-title mb-3 ms-3">Select Time</h3>
             <div className="grid grid-cols-3 mb-3 ms-3">
-                {slots.map(hhmm => {
+                {slots.map((hhmm) => {
                     const disabled = slotDisabled(hhmm);
                     return (
                         <button
                             key={hhmm}
                             type="button"
                             onClick={() => !disabled && setSelectedTime(hhmm)}
-                            className={`time-pill align-self-center ${selectedTime === hhmm ? "selected" : ""} ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                            className={`time-pill align-self-center ${selectedTime === hhmm ? "selected" : ""
+                                } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
                             disabled={disabled}
                             style={{
                                 transition: "all 0.25s ease-in-out",
@@ -499,11 +625,11 @@ export default function CustomerBooking() {
                 })}
             </div>
 
-            {/* Exact picker (keeps 12-hour display in buttons, but lets user pick any HH:MM) */}
+            {/* Optional precise picker (still respects overlap rules) */}
             <div className="ms-3 mb-4">
                 <input
                     type="time"
-                    step="1800"        // 30 minutes
+                    step="1800"
                     min="09:00"
                     max="18:30"
                     value={selectedTime}
@@ -517,17 +643,31 @@ export default function CustomerBooking() {
             <div className="flex flex-col gap-4 mb-4 ms-3">
                 <div className="flex gap-4 mb-2">
                     <label className={`time-pill border cursor-pointer ${paymentMethod === "card"}`}>
-                        <input type="radio" name="pay" value="card" className="mr-2" checked={paymentMethod === "card"} onChange={() => setPaymentMethod("card")} />
+                        <input
+                            type="radio"
+                            name="pay"
+                            value="card"
+                            className="mr-2"
+                            checked={paymentMethod === "card"}
+                            onChange={() => setPaymentMethod("card")}
+                        />
                         Card
                     </label>
                     <label className={`time-pill border ms-2 cursor-pointer ${paymentMethod === "cash"}`}>
-                        <input type="radio" name="pay" value="cash" className="mr-2" checked={paymentMethod === "cash"} onChange={() => setPaymentMethod("cash")} />
+                        <input
+                            type="radio"
+                            name="pay"
+                            value="cash"
+                            className="mr-2"
+                            checked={paymentMethod === "cash"}
+                            onChange={() => setPaymentMethod("cash")}
+                        />
                         Cash
                     </label>
                 </div>
 
                 <div className="grid md:grid-cols-4 gap-2 mb-3">
-                    {[0, 5, 10, 15, 20].map(t => (
+                    {[0, 5, 10, 15, 20].map((t) => (
                         <button
                             key={t}
                             type="button"
@@ -548,7 +688,12 @@ export default function CustomerBooking() {
 
                 {paymentMethod === "card" && (
                     <div className="grid md:grid-cols-2">
-                        <input className="time-pill border" placeholder="Name on card" value={cardName} onChange={(e) => setCardName(e.target.value)} />
+                        <input
+                            className="time-pill border"
+                            placeholder="Name on card"
+                            value={cardName}
+                            onChange={(e) => setCardName(e.target.value)}
+                        />
                         <input
                             className="time-pill border ms-1"
                             placeholder="Card number"
@@ -577,18 +722,48 @@ export default function CustomerBooking() {
 
             <h3 className="text-lg auth-title mb-3 ms-3">Your Information</h3>
             <div className="grid md:grid-cols-2 gap-4 mb-3 ms-3">
-                <input className="time-pill" placeholder="First Name" value={customerInfo.firstName} onChange={e => setCustomerInfo(p => ({ ...p, firstName: e.target.value }))} />
-                <input className="time-pill" placeholder="Last Name" value={customerInfo.lastName} onChange={e => setCustomerInfo(p => ({ ...p, lastName: e.target.value }))} />
+                <input
+                    className="time-pill"
+                    placeholder="First Name"
+                    value={customerInfo.firstName}
+                    onChange={(e) =>
+                        setCustomerInfo((p) => ({ ...p, firstName: e.target.value }))
+                    }
+                />
+                <input
+                    className="time-pill"
+                    placeholder="Last Name"
+                    value={customerInfo.lastName}
+                    onChange={(e) =>
+                        setCustomerInfo((p) => ({ ...p, lastName: e.target.value }))
+                    }
+                />
             </div>
             <div className="grid md:grid-cols-2 gap-4 mb-3 ms-3">
-                <input className="time-pill" placeholder="Email" value={customerInfo.email} onChange={e => setCustomerInfo(p => ({ ...p, email: e.target.value }))} />
-                <input className="time-pill" placeholder="Phone (+1 xxx-xxx-xxxx)" value={customerInfo.phone} onChange={e => setCustomerInfo(p => ({ ...p, phone: e.target.value }))} />
+                <input
+                    className="time-pill"
+                    placeholder="Email"
+                    value={customerInfo.email}
+                    onChange={(e) =>
+                        setCustomerInfo((p) => ({ ...p, email: e.target.value }))
+                    }
+                />
+                <input
+                    className="time-pill"
+                    placeholder="Phone (+1 xxx-xxx-xxxx)"
+                    value={customerInfo.phone}
+                    onChange={(e) =>
+                        setCustomerInfo((p) => ({ ...p, phone: e.target.value }))
+                    }
+                />
             </div>
             <textarea
                 className="w-full price-pill align-self-center mb-3 ms-3"
                 placeholder="Notes (optional)"
                 value={customerInfo.notes}
-                onChange={e => setCustomerInfo(p => ({ ...p, notes: e.target.value }))}
+                onChange={(e) =>
+                    setCustomerInfo((p) => ({ ...p, notes: e.target.value }))
+                }
             />
 
             <div className="ms-3 w-full max-w-sm grid gap-3">
@@ -598,7 +773,14 @@ export default function CustomerBooking() {
                 </div>
 
                 <button disabled={!isFormValid} onClick={handleSubmit} className="mb-4 ms-3 time-pill">
-                    {smsStatus ? (<><MessageSquare className="w-5 h-5 mr-2" />{smsStatus}</>) : "Book Now"}
+                    {smsStatus ? (
+                        <>
+                            <MessageSquare className="w-5 h-5 mr-2" />
+                            {smsStatus}
+                        </>
+                    ) : (
+                        "Book Now"
+                    )}
                 </button>
             </div>
         </div>

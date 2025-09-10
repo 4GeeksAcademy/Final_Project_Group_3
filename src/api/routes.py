@@ -15,31 +15,21 @@ api = Blueprint('api', __name__)
 CORS(api)
 
 
-def _parse_iso_to_naive_local(s: str | None) -> datetime | None:
-    """
-    Accepts '2025-01-31T12:30:00Z' or with offset, returns naive local datetime.
-    """
+def _parse_iso_naive(s: str):
+    """Accept 'YYYY-MM-DDTHH:MM[:SS][.ms]' or same without seconds."""
     if not s:
         return None
     try:
-        # normalize 'Z' to '+00:00' for fromisoformat
-        s = s.replace("Z", "+00:00")
-        dt = datetime.fromisoformat(s)
-        if dt.tzinfo:
-            # convert to local tz then drop tzinfo -> naive local
-            dt = dt.astimezone().replace(tzinfo=None)
-        return dt
+        s = s.replace("Z", "")        # just in case
+        s = s.split(".")[0]           # drop fractional seconds
+        return datetime.fromisoformat(s)
     except Exception:
         return None
 
-
-def _day_bounds_yyyy_mm_dd(date_str: str) -> tuple[datetime, datetime]:
-    """
-    "2025-01-31" -> (2025-01-31 00:00:00, 2025-02-01 00:00:00) naive local
-    """
-    y, m, d = map(int, date_str.split("-"))
+def _day_bounds_local(yyyy_mm_dd: str):
+    y, m, d = map(int, yyyy_mm_dd.split("-"))
     start = datetime(y, m, d, 0, 0, 0)
-    end = start + timedelta(days=1)
+    end   = start + timedelta(days=1)
     return start, end
 
 
@@ -307,7 +297,7 @@ def list_appointments():
 
     date_str = request.args.get("date")
     if date_str:
-        start, end = _day_bounds_yyyy_mm_dd(date_str)
+        start, end = _day_bounds_local(date_str)
         q = q.filter(Appointment.starts_at >= start,
                      Appointment.starts_at < end)
     else:
@@ -315,10 +305,10 @@ def list_appointments():
         date_from = request.args.get("from")
         date_to = request.args.get("to")
         if date_from:
-            start, _ = _day_bounds_yyyy_mm_dd(date_from)
+            start, _ = _day_bounds_local(date_from)
             q = q.filter(Appointment.starts_at >= start)
         if date_to:
-            _, end = _day_bounds_yyyy_mm_dd(date_to)
+            _, end = _day_bounds_local(date_to)
             q = q.filter(Appointment.starts_at < end)
 
     q = q.order_by(Appointment.starts_at.asc())
@@ -330,7 +320,7 @@ def create_appointment():
     data = request.get_json(silent=True) or {}
 
     staff_id = data.get("staff_id")
-    starts_at = _parse_iso_to_naive_local(data.get("starts_at"))
+    starts_at = _parse_iso_naive(data.get("starts_at"))
     services    = data.get("services") or []
     if not isinstance(services, list):
         services = []
@@ -348,9 +338,7 @@ def create_appointment():
         return jsonify({"msg": "Staff not found"}), 404
 
     # Overlap check: fetch that day's appts for staff and compare
-    day_start = datetime(starts_at.year, starts_at.month,
-                         starts_at.day, 0, 0, 0)
-    day_end = day_start + timedelta(days=1)
+    day_start, day_end = _day_bounds_local(starts_at.date().isoformat())
 
     existing = (Appointment.query
                 .filter(Appointment.staff_id == staff_id)

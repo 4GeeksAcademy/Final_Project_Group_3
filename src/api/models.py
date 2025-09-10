@@ -51,7 +51,7 @@ class Appointment(db.Model):
     customer_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
 
     # when it starts (store in UTC ideally)
-    starts_at = db.Column(db.DateTime(timezone=True), nullable=False, index=True)
+    starts_at = db.Column(db.DateTime(timezone=False), nullable=False, index=True)
 
     # total minutes for all selected services
     duration_min = db.Column(db.Integer, nullable=False, default=0)
