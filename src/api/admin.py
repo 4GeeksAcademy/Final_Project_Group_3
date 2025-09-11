@@ -4,8 +4,8 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from markupsafe import Markup
 from .models import db, User, Appointment
-from datetime import datetime
-
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 # ---------- Users ----------
 class UserAdmin(ModelView):
@@ -48,6 +48,19 @@ def _fmt_starts_at(view, context, model, name):
         pass
 
     return val.strftime("%b %d, %Y %I:%M %p")
+
+LOCAL_TZ = ZoneInfo(os.getenv("LOCAL_TZ", "America/New_York"))
+
+def _fmt_starts_at(view, context, model, name):
+    val = getattr(model, name)
+    if not val:
+        return "-"
+    dt = val
+    # ensure aware
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    local = dt.astimezone(LOCAL_TZ)
+    return local.strftime("%b %d, %Y %I:%M %p")
 
 class AppointmentAdmin(ModelView):
     column_list = (

@@ -7,36 +7,64 @@ from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from functools import wraps
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
+import os
 
 api = Blueprint('api', __name__)
 
 # Allow CORS requests to this API
 CORS(api)
 
+LOCAL_TZ = ZoneInfo(os.getenv("LOCAL_TZ", "America/New_York"))
 
-def _parse_iso_naive(s: str):
-    """Accept 'YYYY-MM-DDTHH:MM[:SS][.ms]' or same without seconds."""
+# ----------------- Time helpers (all timezone-aware) -----------------
+
+def parse_iso_to_utc(s: str) -> datetime:
+    """
+    Accepts:
+      - 'YYYY-MM-DDTHH:MM' (no zone => interpret as LOCAL_TZ)
+      - '...+/-HH:MM'
+      - '...Z'
+    Returns a timezone-aware datetime in UTC.
+    """
     if not s:
-        return None
-    try:
-        s = s.replace("Z", "")        # just in case
-        s = s.split(".")[0]           # drop fractional seconds
-        return datetime.fromisoformat(s)
-    except Exception:
-        return None
+        raise ValueError("starts_at required")
 
-def _day_bounds_local(yyyy_mm_dd: str):
+    s = s.strip()
+    if s.endswith("Z"):
+        dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+    else:
+        dt = datetime.fromisoformat(s)
+
+    if dt.tzinfo is None:
+        # treat as wall-clock time in salon's timezone
+        dt = dt.replace(tzinfo=LOCAL_TZ)
+
+    return dt.astimezone(timezone.utc)
+
+
+def day_bounds_utc(yyyy_mm_dd: str) -> tuple[datetime, datetime]:
+    """
+    Given a local date string 'YYYY-MM-DD', compute the UTC start/end
+    of that local day.
+    """
     y, m, d = map(int, yyyy_mm_dd.split("-"))
-    start = datetime(y, m, d, 0, 0, 0)
-    end   = start + timedelta(days=1)
-    return start, end
+    local_start = datetime(y, m, d, 0, 0, 0, tzinfo=LOCAL_TZ)
+    local_end   = local_start + timedelta(days=1)
+    return local_start.astimezone(timezone.utc), local_end.astimezone(timezone.utc)
 
 
-def _overlaps(a_start: datetime, a_min: int, b_start: datetime, b_min: int) -> bool:
-    a_end = a_start + timedelta(minutes=a_min)
-    b_end = b_start + timedelta(minutes=b_min)
-    return a_start < b_end and b_start < a_end
+def overlaps(a_start_dt: datetime, a_min: int,
+             b_start_dt: datetime, b_min: int) -> bool:
+    """
+    Interval overlap check. Inputs may have any tz; we compare in UTC.
+    """
+    a = a_start_dt.astimezone(timezone.utc)
+    b = b_start_dt.astimezone(timezone.utc)
+    a_end = a + timedelta(minutes=int(a_min or 0))
+    b_end = b + timedelta(minutes=int(b_min or 0))
+    return a < b_end and b < a_end
 
 
 def require_roles(*allowed_roles):
@@ -56,17 +84,6 @@ def require_roles(*allowed_roles):
             return fn(*args, **kwargs)
         return wrapper
     return decorator
-
-
-@api.route('/hello', methods=['POST', 'GET'])
-def handle_hello():
-
-    response_body = {
-        "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
-    }
-
-    return jsonify(response_body), 200
-
 
 @api.route('/user', methods=['POST'])
 def sign_up():
@@ -286,7 +303,6 @@ def update_user_info(user_id):
 
 # ---- Appointments API ----
 
-
 @api.route("/appointments", methods=["GET"])
 def list_appointments():
     q = Appointment.query
@@ -297,60 +313,68 @@ def list_appointments():
 
     date_str = request.args.get("date")
     if date_str:
-        start, end = _day_bounds_local(date_str)
-        q = q.filter(Appointment.starts_at >= start,
-                     Appointment.starts_at < end)
+        # constrain to that local day, but do it in UTC for storage
+        start_utc, end_utc = day_bounds_utc(date_str)
+        q = q.filter(
+            Appointment.starts_at >= start_utc,
+            Appointment.starts_at <  end_utc,
+        )
     else:
-        # optional admin range: from/to as YYYY-MM-DD
+        # optional admin range
         date_from = request.args.get("from")
-        date_to = request.args.get("to")
+        date_to   = request.args.get("to")
         if date_from:
-            start, _ = _day_bounds_local(date_from)
-            q = q.filter(Appointment.starts_at >= start)
+            start_utc, _ = day_bounds_utc(date_from)
+            q = q.filter(Appointment.starts_at >= start_utc)
         if date_to:
-            _, end = _day_bounds_local(date_to)
-            q = q.filter(Appointment.starts_at < end)
+            _, end_utc = day_bounds_utc(date_to)
+            q = q.filter(Appointment.starts_at < end_utc)
 
     q = q.order_by(Appointment.starts_at.asc())
     return jsonify([a.serialize() for a in q.all()]), 200
 
+
+# ----------------- POST /api/appointments -----------------
 
 @api.route("/appointments", methods=["POST"])
 def create_appointment():
     data = request.get_json(silent=True) or {}
 
     staff_id = data.get("staff_id")
-    starts_at = _parse_iso_naive(data.get("starts_at"))
-    services    = data.get("services") or []
-    if not isinstance(services, list):
-        services = []
-    duration_min = data.get("duration") or data.get("duration_min") or 60
-    subtotal = float(data.get("subtotal") or 0)
-    tip = float(data.get("tip") or 0)
-    total = float(data.get("total") or (subtotal + tip))
+    starts_at_utc = parse_iso_to_utc(data.get("starts_at"))  # <-- ALWAYS UTC (aware)
+    duration_min = int(data.get("duration") or data.get("duration_min") or 0)
+    services = data.get("services") or []
 
-    if not staff_id or not starts_at or not duration_min:
+    subtotal = float(data.get("subtotal") or 0)
+    tip      = float(data.get("tip") or 0)
+    total    = float(data.get("total") or (subtotal + tip))
+
+    if not staff_id or not starts_at_utc or not duration_min:
         return jsonify({"msg": "Missing required fields"}), 400
 
-    # Ensure staff user exists
+    # Ensure staff exists
     staff = User.query.get(staff_id)
     if not staff:
         return jsonify({"msg": "Staff not found"}), 404
 
-    # Overlap check: fetch that day's appts for staff and compare
-    day_start, day_end = _day_bounds_local(starts_at.date().isoformat())
+    # Overlap window: compute the LOCAL day for the chosen starts_at,
+    # then convert that day's bounds to UTC and limit the query.
+    local_day = starts_at_utc.astimezone(LOCAL_TZ).strftime("%Y-%m-%d")
+    day_start_utc, day_end_utc = day_bounds_utc(local_day)
 
-    existing = (Appointment.query
-                .filter(Appointment.staff_id == staff_id)
-                .filter(Appointment.starts_at >= day_start,
-                        Appointment.starts_at < day_end)
-                .all())
+    existing = (
+        Appointment.query
+        .filter(Appointment.staff_id == staff_id)
+        .filter(Appointment.starts_at >= day_start_utc)
+        .filter(Appointment.starts_at <  day_end_utc)
+        .all()
+    )
 
     for ap in existing:
-        if _overlaps(starts_at, int(duration_min), ap.starts_at, ap.duration_min):
+        if overlaps(starts_at_utc, duration_min, ap.starts_at, ap.duration_min):
             return jsonify({"msg": "Selected time overlaps another appointment"}), 409
 
-    # Optional: match/create a customer by email (simple heuristic)
+    # Optional: create/match a lightweight customer
     customer_id = None
     cust = data.get("customer") or {}
     cust_email = (cust.get("email") or "").strip().lower()
@@ -359,10 +383,9 @@ def create_appointment():
         if existing_cust:
             customer_id = existing_cust.id
         else:
-            # Create a lightweight customer (password placeholder)
             new_cust = User(
                 email=cust_email,
-                password="!",  # placeholder; no login with this
+                password="!",                # placeholder; no login with this
                 phone=cust.get("phone") or "",
                 fname=cust.get("first") or "",
                 lname=cust.get("last") or "",
@@ -375,18 +398,20 @@ def create_appointment():
     appt = Appointment(
         staff_id=staff_id,
         customer_id=customer_id,
-        starts_at=starts_at,
-        duration_min=int(duration_min),
-        services=services, 
+        starts_at=starts_at_utc,          # stored as UTC (timezone=True column)
+        duration_min=duration_min,
+        services=services,
         subtotal=subtotal,
         tip=tip,
         total=total,
-        notes=(data.get("notes") or None),
+        notes=data.get("notes") or None,
     )
+
     db.session.add(appt)
     db.session.commit()
 
     return jsonify(appt.serialize()), 201
+
 
 
 @api.route("/appointments/<int:appt_id>", methods=["DELETE"])
