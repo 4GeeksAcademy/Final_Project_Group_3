@@ -49,7 +49,7 @@ export const Footer = () => (
 						</li>
 						<li>
 							<Link to="/OurTeam" className="text-decoration-none text-light">
-								<span className="highlight-on-hover">Our Team</span>
+								<span className="highlight-on-hover">Team</span>
 							</Link>
 						</li>
 						<li>
