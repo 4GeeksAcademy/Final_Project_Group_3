@@ -101,7 +101,7 @@ export function OurTeam() {
   return (
     <div className="container py-5 text-start">
       <div className="text-center mb-4">
-        <h1 className="display-6 auth-title">Our Team</h1>
+        <h1 className="display-6 auth-title">Team</h1>
         <p className="text-muted mx-auto " style={{ maxWidth: 720 }}>
           Meet the artists behind your look. Our talented team of artists is the heart of everything we do. Each of our staff members brings unique expertise, creativity, and passion to ensure every client leaves feeling confident and pampered.
         </p>
