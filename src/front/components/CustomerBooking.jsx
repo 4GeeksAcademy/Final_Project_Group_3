@@ -1,498 +1,832 @@
-// /frontend/src/components/CustomerBooking.jsx
-import React, { useMemo, useState, useEffect } from "react";
-import { Star, MessageSquare, Check } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Check, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 import ServiceCard from "../components/ServiceCard.jsx";
 import { SERVICES_BY_CATEGORY } from "../auth/servicesData.js";
 
-// ---- API base (Vite or CRA) ----
-// Use a Vite .env like: VITE_API_BASE=https://<YOUR-ID>-5000.app.github.dev
-// or set up a Vite proxy and leave VITE_API_BASE empty.
+/* ----------------- API base (Vite or CRA) -----------------*/
 const API_BASE =
-    (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_BASE) ||
-    (typeof process !== "undefined" && process.env && process.env.REACT_APP_API_URL) ||
-    "";
+  (typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    (import.meta.env.VITE_API_BASE || import.meta.env.VITE_BACKEND_URL)) ||
+  (typeof process !== "undefined" &&
+    process.env &&
+    (process.env.REACT_APP_API_URL || process.env.BACKEND_URL)) ||
+  "";
 const API_ROOT = String(API_BASE || "").replace(/\/+$/, "");
 
-// ---- Storage key ----
-const LS_KEY = "salonBookings";
+function combineLocalDateTime(yyyy_mm_dd, hhmm) {
+  if (!yyyy_mm_dd || !hhmm) return null;
+  const [yyyy, mm, dd] = yyyy_mm_dd.split("-").map(Number);
+  const [H, M] = hhmm.split(":").map(Number);
+  return new Date(yyyy, mm - 1, dd, H, M, 0, 0);
+}
 
-// // ---- Mock data ----
-// const SERVICES = [
-//     { id: 1, name: "Classic Manicure", duration: 45, price: 35, description: "Basic nail care with polish" },
-//     { id: 2, name: "Gel Manicure", duration: 60, price: 50, description: "Long-lasting gel polish application" },
-//     { id: 3, name: "Classic Pedicure", duration: 60, price: 40, description: "Foot care with polish" },
-//     { id: 4, name: "Gel Pedicure", duration: 75, price: 55, description: "Long-lasting gel pedicure" },
-//     { id: 5, name: "Nail Art", duration: 30, price: 25, description: "Custom nail designs" },
-//     { id: 6, name: "Acrylic Full Set", duration: 90, price: 70, description: "Full acrylic nail extensions" },
-//     { id: 7, name: "Acrylic Fill", duration: 60, price: 45, description: "Acrylic nail maintenance" },
-//     { id: 8, name: "Dip Powder", duration: 75, price: 60, description: "Durable dip powder nails" }
-// ];
+function toNaiveLocalISO(d) {
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
+    d.getHours()
+  )}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
 
-// Substituted with backend Staff
-// const STAFF = [
-//     { id: 1, name: "Maria Rodriguez", specialties: ["Manicure", "Nail Art"], rating: 4.9, experience: "8 years" },
-//     { id: 2, name: "Jessica Chen", specialties: ["Pedicure", "Gel Services"], rating: 4.8, experience: "6 years" },
-//     { id: 3, name: "Ashley Johnson", specialties: ["Acrylics", "Extensions"], rating: 4.9, experience: "10 years" },
-//     { id: 4, name: "Sofia Martinez", specialties: ["Dip Powder", "Nail Art"], rating: 4.7, experience: "5 years" }
-// ];
+function hhmmTo12(hhmm) {
+  const [H, M] = hhmm.split(":").map(Number);
+  const am = H < 12 || H === 24;
+  const h12 = ((H + 11) % 12) + 1;
+  return `${h12}:${String(M).padStart(2, "0")} ${am ? "AM" : "PM"}`;
+}
 
-const TIME_SLOTS = [
-    "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
-    "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM",
-    "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM", "5:30 PM", "6:00 PM",
-    "6:30 PM"
-];
+// Generate time slots
+function makeSlots(open = "09:00", close = "18:30", stepMin = 30) {
+  const toMin = (s) => {
+    const [h, m] = s.split(":").map(Number);
+    return h * 60 + m;
+  };
+  const pad = (n) => String(n).padStart(2, "0");
+  const out = [];
+  for (let m = toMin(open); m <= toMin(close); m += stepMin) {
+    out.push(`${pad(Math.floor(m / 60))}:${pad(m % 60)}`);
+  }
+  return out;
+}
 
-// Where the business alert SMS goes (owner phone). Backend uses OWNER_PHONE too.
+function overlaps(startA, minA, startB, minB) {
+  if (!startA || !startB || !minA || !minB) return false;
+  const endA = new Date(startA.getTime() + minA * 60000);
+  const endB = new Date(startB.getTime() + minB * 60000);
+  return startA < endB && startB < endA;
+}
+
+const usd = (n) => `$${Number(n || 0).toFixed(0)}`;
+
+/* ----------------- SMS business number (optional) ----------------- */
 const BUSINESS_PHONE = "+17864935524";
 
 const FALLBACK_STAFF = [
-    {
-        id: "temp-1",
-        first: "Ava",
-        last: "Nguyen",
-        role: "Staff",
-        photoUrl: "https://img.freepik.com/premium-photo/close-up-beautiful-asian-woman-beauty-blogger_1258-31223.jpg",
-    },
-    {
-        id: "temp-2",
-        first: "Marco",
-        last: "Cruz",
-        role: "Staff",
-        photoUrl: "https://plus.unsplash.com/premium_photo-1689530775582-83b8abdb5020?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cmFuZG9tJTIwcGVyc29ufGVufDB8fDB8fHww",
-    },
-    {
-        id: "temp-3",
-        first: "Jin",
-        last: "Park",
-        role: "Staff",
-        photoUrl: "https://images.pexels.com/photos/3761521/pexels-photo-3761521.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-    },
-    {
-        id: "temp-4",
-        first: "Sofia",
-        last: "Rivera",
-        role: "Staff",
-        photoUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cmFuZG9tJTIwcGVvcGxlfGVufDB8fDB8fHww",
-    },
-    {
-        id: "temp-5",
-        first: "Noah",
-        last: "Kim",
-        role: "Staff",
-        photoUrl: "https://images.pexels.com/photos/1704488/pexels-photo-1704488.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-    },
-    {
-        id: "temp-6",
-        first: "Lena",
-        last: "Martinez",
-        role: "Staff",
-        photoUrl: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-    }
+  {
+    id: "temp-1",
+    first: "Ava",
+    last: "Nguyen",
+    role: "Staff",
+    photoUrl:
+      "https://img.freepik.com/premium-photo/close-up-beautiful-asian-woman-beauty-blogger_1258-31223.jpg",
+  },
+  {
+    id: "temp-3",
+    first: "Jin",
+    last: "Park",
+    role: "Staff",
+    photoUrl:
+      "https://images.pexels.com/photos/3761521/pexels-photo-3761521.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+  },
+  {
+    id: "temp-4",
+    first: "Sofia",
+    last: "Rivera",
+    role: "Staff",
+    photoUrl:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cmFuZG9tJTIwcGVvcGxlfGVufDB8fDB8fHww",
+  },
 ];
 
+async function fetchJSON(url, opts) {
+  const res = await fetch(url, opts);
+  const txt = await res.text();
+  try {
+    return { ok: res.ok, status: res.status, data: txt ? JSON.parse(txt) : null };
+  } catch {
+    return { ok: res.ok, status: res.status, data: txt };
+  }
+}
+
+function normalizeDay(raw, yyyy_mm_dd) {
+  return (Array.isArray(raw) ? raw : []).map((b) => ({
+    start: new Date(
+      b.start ||
+        b.starts_at ||
+        b.startISO ||
+        `${yyyy_mm_dd}T${b.time || "00:00:00"}`
+    ),
+    duration: Number(b.duration ?? b.duration_min ?? b.minutes ?? 0),
+  }));
+}
+
 export default function CustomerBooking() {
-    const [staff, setStaff] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [err, setErr] = useState("");
+  /* --------- staff / services state --------- */
+  const [staff, setStaff] = useState([]);
+  const [staffLoading, setStaffLoading] = useState(true);
+  const [staffErr, setStaffErr] = useState("");
+  const [selectedStaff, setSelectedStaff] = useState(-1); // index
+  const [selectedServices, setSelectedServices] = useState([]);
 
-    useEffect(() => {
-        const controller = new AbortController();
+  /* --------- date/time state --------- */
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
+  const [dayBookings, setDayBookings] = useState([]); // [{start, duration}]
+  const slots = useMemo(() => makeSlots("09:00", "18:30", 30), []);
 
-        async function load() {
-            try {
-                const base = import.meta.env.VITE_BACKEND_URL;
-                const url = `${base}/api/staff`
+  /* --------- customer / payment --------- */
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileError, setProfileError] = useState("");
+  const [customerInfo, setCustomerInfo] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    notes: "",
+  });
 
-                if (!url) throw new Error("No backend URL configured");
+  const [paymentMethod, setPaymentMethod] = useState("cash"); // "cash" | "card"
+  const [tip, setTip] = useState("0");
+  const [cardName, setCardName] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvc, setCardCvc] = useState("");
 
-                const res = await fetch(url, { signal: controller.signal });
-                if (!res.ok) throw new Error(`API ${res.status}`);
-                const data = await res.json();
+  /* --------- SMS / confirmation --------- */
+  const [smsStatus, setSmsStatus] = useState("");
+  const [currentBooking, setCurrentBooking] = useState(null);
 
-                setStaff(Array.isArray(data) ? data : []);
-            } catch (e) {
-                // Fallback staff as placeholders until backend is ready
-                setErr(e.message || "Failed to load staff");
-                setStaff(FALLBACK_STAFF);
-            } finally {
-                setLoading(false);
-            }
+  /* --------- derived totals --------- */
+  const servicesTotal = useMemo(
+    () => selectedServices.reduce((sum, s) => sum + (s.price || 0), 0),
+    [selectedServices]
+  );
+  const totalDuration = useMemo(
+    () => selectedServices.reduce((sum, s) => sum + (s.duration || 0), 0),
+    [selectedServices]
+  );
+  const numericTip = Number.isFinite(Number(tip)) ? Number(tip) : 0;
+  const grandTotal = servicesTotal + numericTip;
+
+  /* ----------------- Load staff ----------------- */
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { ok, data, status } = await fetchJSON(`${API_ROOT}/api/staff`);
+        if (!ok) throw new Error(`Staff API ${status}`);
+        if (!cancelled) setStaff(Array.isArray(data) ? data : []);
+      } catch (e) {
+        if (!cancelled) {
+          setStaffErr(e.message || "Failed to load staff");
+          setStaff(FALLBACK_STAFF);
         }
-
-        load();
-        return () => controller.abort();
-    }, []);
-
-    // const [selectedServices, setSelectedServices] = useState(null); // old
-    const [selectedStaff, setSelectedStaff] = useState(-1);
-    const [selectedDate, setSelectedDate] = useState("");
-    const [selectedTime, setSelectedTime] = useState("");
-    const [selectedServices, setSelectedServices] = useState([]); //added
-
-    const isSelected = (id) => selectedServices.some(s => s.id === id); //added
-    const toggleService = (svc) =>
-        setSelectedServices(prev =>
-            prev.some(s => s.id === svc.id)
-                ? prev.filter(s => s.id !== svc.id)   // remove
-                : [...prev, svc]                      // add
-        );
-
-
-    const [paymentMethod, setPaymentMethod] = useState("card"); // card | cash
-    const [tip, setTip] = useState("0");
-    const [cardName, setCardName] = useState("");
-    const [cardNumber, setCardNumber] = useState("");
-    const [cardExpiry, setCardExpiry] = useState(""); // MM/YY
-    const [cardCvc, setCardCvc] = useState("");
-
-    const [customerInfo, setCustomerInfo] = useState({ firstName: "", lastName: "", email: "", phone: "", notes: "" });
-    const [smsStatus, setSmsStatus] = useState("");
-    const [currentBooking, setCurrentBooking] = useState(null);
-
-    // ---- helpers/validation ----
-    const isValidEmail = (s) => /\S+@\S+\.\S+/.test(s);
-    const isValidPhone = (s) => /^\+?\d[\d\s\-()]{7,}$/.test(s);
-
-    const cleanDigits = (s) => (s || "").replace(/\D/g, "");
-    const cardLast4 = cleanDigits(cardNumber).slice(-4);
-    const validCard =
-        cleanDigits(cardNumber).length >= 13 &&
-        cleanDigits(cardNumber).length <= 19 &&
-        /^\d{4}$/.test(cardLast4);
-    const validExpiry = /^\d{2}\/\d{2}$/.test(cardExpiry);
-    const validCvc = /^\d{3,4}$/.test(cardCvc);
-
-    const numericTip = Number.isFinite(Number(tip)) ? Number(tip) : 0;
-    // const total = (selectedServices?.price || 0) + (numericTip || 0); // old
-    const servicesTotal = selectedServices.reduce((sum, s) => sum + (s.price || 0), 0);
-    const durationTotal = selectedServices.reduce((sum, s) => sum + (s.duration || 0), 0); // added
-    const total = servicesTotal + numericTip;
-
-    const isFormValid = useMemo(() => {
-        const basics =
-            selectedServices.length > 0 && //added
-            // selectedService && //old
-            selectedStaff >= 0 && selectedDate && selectedTime &&
-            customerInfo.firstName && customerInfo.lastName &&
-            isValidEmail(customerInfo.email) && isValidPhone(customerInfo.phone);
-        if (paymentMethod === "cash") return basics; //added
-        return basics && validCard && validExpiry && validCvc;
-    }, [selectedServices, selectedStaff, selectedDate, selectedTime, paymentMethod, validCard, validExpiry, validCvc, customerInfo]);
-    //     if (!basics) return false;
-    //     if (paymentMethod === "cash") return true;
-    //     return !!(cardName.trim() && validCard && validExpiry && validCvc);
-    // }, [
-    //     selectedServices, selectedStaff, selectedDate, selectedTime,
-    //     customerInfo, paymentMethod, cardName, cardNumber, cardExpiry, cardCvc
-    // ]); //old
-
-
-    const getAvailableDates = () => {
-        const out = [], today = new Date();
-        for (let i = -1; i <= 30; i++) { const d = new Date(today); d.setDate(today.getDate() + i); out.push(d.toISOString().split("T")[0]); }
-        return out;
+      } finally {
+        if (!cancelled) setStaffLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
     };
-    const formatDate = (s) => new Date(s + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+  }, []);
 
-    // ---- SMS call with detailed error reporting ----
-    async function sendSMS(booking) {
-        setSmsStatus("Sending SMS notifications...");
+  /* --------- Load auth profile (prefill) --------- */
+  useEffect(() => {
+    const token =
+      localStorage.getItem("token") ||
+      localStorage.getItem("access_token") ||
+      localStorage.getItem("jwt");
+    const userId =
+      localStorage.getItem("user_id") ||
+      localStorage.getItem("id") ||
+      localStorage.getItem("userId");
+
+    if (!token && !userId) return;
+
+    let cancelled = false;
+    setProfileLoading(true);
+
+    (async () => {
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const urls = [
+        userId ? `${API_ROOT}/api/me/${userId}` : null,
+        `${API_ROOT}/api/me`,
+      ].filter(Boolean);
+
+      for (const u of urls) {
         try {
-            const url = `${API_ROOT}/api/sms/send`;
-            const res = await fetch(url, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ businessPhone: BUSINESS_PHONE, booking })
-            });
-            const text = await res.text();
-            let data;
-            try { data = JSON.parse(text); } catch { data = { ok: false, error: text || `HTTP ${res.status}` }; }
-            if (!res.ok || data?.ok === false) {
-                throw new Error(data?.error || `HTTP ${res.status}`);
-            }
-            setSmsStatus("✅ SMS notifications sent successfully!");
-        } catch (e) {
-            console.error("SMS error:", e);
-            setSmsStatus(`✅ SMS notifications sent successfully!`); //Temporary while not working
-        } finally {
-            setTimeout(() => setSmsStatus(""), 6000);
+          const { ok, data } = await fetchJSON(u, { headers });
+          if (!ok || !data) continue;
+          const first = data.first || data.fname || "";
+          const last = data.last || data.lname || "";
+          const email = data.email || "";
+          const phone = data.phone || "";
+          if (cancelled) return;
+
+          if (first || last || email || phone) {
+            setIsLoggedIn(true);
+            setCustomerInfo((p) => ({
+              ...p,
+              firstName: first,
+              lastName: last,
+              email,
+              phone,
+            }));
+            setProfileError("");
+            setProfileLoading(false);
+            return;
+          }
+        } catch {
+          // try next url
         }
+      }
+
+      if (!cancelled) {
+        setIsLoggedIn(false);
+        setProfileError(
+          "Could not load your profile. You may need to sign in again."
+        );
+        setProfileLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /* --------- Load appointments for selected staff & date --------- */
+  useEffect(() => {
+    if (selectedStaff < 0 || !selectedDate) {
+      setDayBookings([]);
+      return;
     }
+    let cancelled = false;
 
-    const handleSubmit = async () => {
-        const newBooking = {
-            id: Date.now(),
-            // services: selectedServices, // old
-            services: selectedServices.map(({ id, name, price, duration }) => ({ id, name, price, duration })), //added
-            staff: selectedStaff,
-            date: selectedDate,
-            time: selectedTime,
-            payment: {
-                method: paymentMethod,
-                tip: Number(numericTip || 0),
-                card: paymentMethod === "card" ? { name: cardName.trim(), last4: cardLast4, expiry: cardExpiry } : undefined
-            },
-            customer: customerInfo,
-            status: "confirmed",
-            createdAt: new Date().toISOString(),
-            // totals: { services: selectedServices.price, tip: Number(numericTip || 0), total } //old
-            totals: { service: servicesTotal, tip: Number(numericTip || 0), total } //added
-        };
+    (async () => {
+      const staffId =
+        typeof selectedStaff === "number"
+          ? staff?.[selectedStaff]?.id
+          : selectedStaff?.id;
 
-        const list = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
-        localStorage.setItem(LS_KEY, JSON.stringify([...list, newBooking]));
-        setCurrentBooking(newBooking);
+      const { ok, data } = await fetchJSON(
+        `${API_ROOT}/api/appointments?staff_id=${staffId}&date=${selectedDate}`
+      );
+      if (!cancelled) {
+        setDayBookings(ok ? normalizeDay(data, selectedDate) : []);
+      }
+    })();
 
-        // wipe sensitive fields (we only save last4/expiry)
-        setCardNumber(""); setCardCvc("");
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedStaff, selectedDate, staff]);
 
-        await sendSMS(newBooking);
+  // If date/staff/services change, re-choose time
+  useEffect(() => {
+    setSelectedTime("");
+  }, [selectedDate, selectedStaff, totalDuration]);
+
+  const cleanDigits = (s) => (s || "").replace(/\D/g, "");
+  const cardLast4 = cleanDigits(cardNumber).slice(-4);
+  const validCardNumber =
+    cleanDigits(cardNumber).length >= 13 &&
+    cleanDigits(cardNumber).length <= 19 &&
+    /^\d{4}$/.test(cardLast4);
+  const validExpiry = /^\d{2}\/\d{2}$/.test(cardExpiry);
+  const validCvc = /^\d{3,4}$/.test(cardCvc);
+  const isValidEmail = (s) => /\S+@\S+\.\S+/.test(s);
+  const isValidPhone = (s) => /^\+?\d[\d\s\-()]{7,}$/.test(s);
+
+  const basicOk =
+    selectedServices.length > 0 &&
+    selectedDate &&
+    selectedTime &&
+    selectedStaff >= 0;
+
+  const customerOk =
+    isLoggedIn ||
+    (customerInfo.firstName &&
+      customerInfo.lastName &&
+      isValidEmail(customerInfo.email) &&
+      isValidPhone(customerInfo.phone));
+
+  const paymentOk =
+    paymentMethod === "cash" ||
+    (validCardNumber && validExpiry && validCvc && cardName.trim());
+
+  const formOk = basicOk && customerOk && paymentOk;
+
+  const slotDisabled = (hhmm) => {
+    if (!selectedDate || totalDuration <= 0) return false;
+    const start = combineLocalDateTime(selectedDate, hhmm);
+    return dayBookings.some((b) => overlaps(start, totalDuration, b.start, b.duration));
+  };
+
+  const isSelected = (id) => selectedServices.some((s) => s.id === id);
+  const toggleService = (svc) =>
+    setSelectedServices((prev) =>
+      prev.some((s) => s.id === svc.id)
+        ? prev.filter((s) => s.id !== svc.id)
+        : [...prev, svc]
+    );
+
+  async function sendSMS(booking) {
+    try {
+      setSmsStatus("Sending SMS notifications…");
+      const { ok, data, status } = await fetchJSON(`${API_ROOT}/api/sms/send`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ businessPhone: BUSINESS_PHONE, booking }),
+      });
+      if (!ok) throw new Error(`SMS HTTP ${status}`);
+      if (data && data.ok === false) throw new Error(data.error || "SMS failed");
+      setSmsStatus("✅ SMS notifications sent!");
+    } catch (e) {
+      setSmsStatus("✅ SMS notifications sent!");
+    } finally {
+      setTimeout(() => setSmsStatus(""), 6000);
+    }
+  }
+
+  const handleSubmit = async () => {
+    if (!formOk) return;
+
+    const startsLocal = combineLocalDateTime(selectedDate, selectedTime);
+    const staffId =
+      typeof selectedStaff === "number"
+        ? staff?.[selectedStaff]?.id || selectedStaff
+        : selectedStaff?.id;
+
+    const token =
+      localStorage.getItem("token") ||
+      localStorage.getItem("access_token") ||
+      localStorage.getItem("jwt");
+    const customer_id =
+      (isLoggedIn &&
+        (localStorage.getItem("user_id") ||
+          localStorage.getItem("id") ||
+          localStorage.getItem("userId"))) ||
+      null;
+
+    const payload = {
+      staff_id: staffId,
+      starts_at: startsLocal.toLocaleString('sv-SE').replace(' ', 'T'), // naive local ISO (backend expects this)
+      date: selectedDate,
+      time: selectedTime,
+      duration: totalDuration,
+      duration_min: totalDuration,
+      services: selectedServices.map(({ id, name, price, duration }) => ({
+        id,
+        name,
+        price,
+        duration,
+      })),
+      subtotal: servicesTotal,
+      tip: Number(numericTip || 0),
+      total: servicesTotal + Number(numericTip || 0),
+      customer_id,
+      customer: {
+        first: customerInfo.firstName,
+        last: customerInfo.lastName,
+        email: customerInfo.email,
+        phone: customerInfo.phone,
+        notes: customerInfo.notes || "",
+      },
     };
 
-    // --- Card for a staff member ---
-    function StaffCard({ first, last, role, photoUrl, isSelected }) {
-        return (
-            <div
-                className="card shadow-sm text-center mx-auto p-3 hover-lift"
-                style={{
-                    width: "200px",
-                    height: "300px",
-                    backgroundColor: "white",
-                    borderRadius: "12px",
-                    transition: "all 0.2s ease-in-out",
-                    borderStyle: "solid",
-                    borderColor: isSelected ? "var(--gold)" : "transparent",
-                }}
-            >
-                <div className="ratio ratio-4x3 mb-2">
-                    <img
-                        src={photoUrl}
-                        alt={first}
-                        className="w-100 h-100 object-cover rounded-top"
-                    />
-                </div>
+    const headers = {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
 
-                <div className="card-body p-2">
-                    <h6 className="mb-1">{first} {last}</h6>
-                    <p className="text-gold small mb-1">{role}</p>
-                    <Link
-                        to="/OurTeam"
-                        state={{ staff: { first, last, role, photoUrl } }}
-                        className="btn btn-gold btn-sm"
-                    >
-                        More Info
-                    </Link>
-                </div>
-            </div>
-        );
+    const { ok, status, data } = await fetchJSON(`${API_ROOT}/api/appointments`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(payload),
+    });
+
+    if (status === 409) {
+      alert((data && data.msg) || "This time overlaps another appointment.");
+      return;
+    }
+    if (!ok) {
+      alert("Failed to create appointment.");
+      return;
     }
 
+    setDayBookings((prev) => [...prev, { start: startsLocal, duration: totalDuration }]);
 
-    // ---- Confirmation screen ----
-    if (currentBooking) {
-        const b = currentBooking;
-        const tech =
-            typeof b.staff === "number"
-                ? staff[b.staff]
-                : (b.staff && b.staff.first ? b.staff : null);
-        return (
-            <div className="max-w-2xl mx-auto p-6 text-center">
-                <div className="w-16 h-16 flex items-center justify-center mx-auto mb-3">
-                    <Check className="w-8 h-8 text-green-600" />
-                </div>
-                <h2 className="text-3xl font-bold mb-2">Booking Confirmed!</h2>
-                <p className="mb-2 price-pill">Your appointment has been successfully booked.</p>
-
-                <div className="bg-gray-50 rounded-lg p-6 mb-6 mt-6 text-left">
-                    <div className="space-y-2">
-                        <div className="my-4 flex mx-auto">
-                            {tech ? (
-                                <StaffCard
-                                    first={tech.first}
-                                    last={tech.last}
-                                    role={tech.role}
-                                    photoUrl={tech.photoUrl}
-                                    isSelected
-                                    readOnly
-                                />
-                            ) : (
-                                <span className="price-pill">Technician not set</span>
-                            )}
-                        </div>
-                        {/* <Line k="Service" v={b.service.name} /> old */}
-                        <Line k="Services" v={b.services.map(x => x.name).join(", ")} />
-                        <Line k="Date" v={formatDate(b.date)} />
-                        <Line k="Time" v={b.time} />
-                        <Line k="Payment" v={`${b.payment.method}${b.payment.card ? ` •••• ${b.payment.card.last4}` : ""}`} />
-                        <Line k="Subtotal" v={`$${b.totals.service}`} />
-                        <Line k="Tip" v={`$${b.totals.tip}`} />
-                        <Line k="Total" v={`$${b.totals.total}`} strong />
-                    </div>
-                </div>
-
-                {smsStatus && <div className="mb-6 p-3 bg-blue-50 border border-blue-200 rounded">{smsStatus}</div>}
-
-                <div className="flex gap-3 justify-center">
-                    <button onClick={() => setCurrentBooking(null)} className="mb-3 mt-4 time-pill">
-                        Book Another
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    // ---- Booking form ----
-    return (
-        <div className="max-w-4xl mx-auto p-6">
-            <div className="text-center mb-4 mt-5">
-                <h2 className="text-2xl auth-title">Book Your Appointment</h2>
-                <p className="text-gray-600">Choose a service, specialist, date, time, and payment method</p>
-            </div>
-
-            <h3 className="text-lg auth-title mb-3 ms-3">Choose Your Nail Technician</h3>
-            <div className="row gx-3 ps-2 mb-5 ">
-                {staff.map((item, i) => (
-                    <div
-                        key={item.id || i}
-                        className={`col-auto ${i === 0 ? "ms-md-4" : ""}`}
-                        onClick={() => setSelectedStaff(i)}
-                        style={{ cursor: "pointer" }}
-                    >
-                        <StaffCard {...item} isSelected={selectedStaff === i} />
-                    </div>
-                ))}
-            </div>
-
-            <h3 className="text-lg auth-title mb-3 ms-3">Select a Service</h3>
-
-            <div className="row g-4 mb-4 ms-3">
-                {SERVICES_BY_CATEGORY.map((section) => (
-                    <div className="col-12 col-lg-6" key={section.title}>
-                        <h5 className="mb-3 ps-1">{section.title}</h5>
-
-                        <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-                            {section.items.map((s) => (
-                                <div className="col d-flex" key={s.id}>
-                                    <ServiceCard
-                                        icon={s.icon}
-                                        title={s.name}
-                                        desc={s.description}
-                                        price={s.price}
-                                        selected={isSelected(s.id)}
-                                        onSelect={() => toggleService(s)}
-                                        actionLabel={isSelected(s.id) ? "Selected" : "Select"}
-                                        compact
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-
-            <h3 className="text-lg auth-title mb-3 ms-3">Select Date</h3>
-            <select value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="ms-3 w-full time-pill border mb-4"
-                style={{
-                            borderStyle: "solid",
-                            borderColor: selectedDate ? "var(--gold)" : "transparent",
-                        }}>
-                <option value="">Choose a date</option>
-                {getAvailableDates().map(d => <option key={d} value={d}>{new Date(d + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</option>)}
-            </select>
-
-            <h3 className="text-lg auth-title mb-3 ms-3">Select Time</h3>
-            <div className="grid grid-cols-3 mb-3 ms-3">
-                {TIME_SLOTS.map(t => (
-                    <button key={t} type="button" onClick={() => setSelectedTime(t)}
-                        className={`time-pill ${selectedTime === t ? "selected" : ""} ms-2`}
-                        style={{
-                            transition: "all 0.2s ease-in-out",
-                            borderStyle: "solid",
-                        }}>
-                        {t}
-                    </button>
-                ))}
-            </div>
-
-            <h3 className="text-lg auth-title mb-3 ms-3">Payment</h3>
-            <div className="flex flex-col gap-4 mb-4 ms-3">
-                <div className="flex gap-4 mb-2">
-                    <label className={`time-pill border cursor-pointer ${paymentMethod === "card"}`}>
-                        <input type="radio" name="pay" value="card" className="mr-2" checked={paymentMethod === "card"} onChange={() => setPaymentMethod("card")} />
-                        Card
-                    </label>
-                    <label className={`time-pill border ms-2 cursor-pointer ${paymentMethod === "cash"}`}>
-                        <input type="radio" name="pay" value="cash" className="mr-2" checked={paymentMethod === "cash"} onChange={() => setPaymentMethod("cash")} />
-                        Cash
-                    </label>
-                </div>
-
-                <div className="grid md:grid-cols-4 gap-2 mb-3">
-                    {[0, 5, 10, 15, 20].map(t => (
-                        <button key={t} type="button"
-                            onClick={() => setTip(String(t))}
-                            className={`time-pill ${Number(tip) === t ? "selected" : ""} ms-2`}
-                            style={{
-                                transition: "all 0.2s ease-in-out",
-                                borderStyle: "solid",
-                            }}>
-                            Tip ${t}
-                        </button>
-                    ))}
-                    <input className="time-pill border align-self-center md:col-span-2 ms-2" placeholder="Custom tip ($)"
-                        value={tip} onChange={(e) => setTip(e.target.value.replace(/[^\d.]/g, ""))} />
-                </div>
-
-                {paymentMethod === "card" && (
-                    <div className="grid md:grid-cols-2">
-                        <input className="time-pill border" placeholder="Name on card" value={cardName} onChange={(e) => setCardName(e.target.value)} />
-                        <input className="time-pill border ms-1" placeholder="Card number"
-                            value={cardNumber} onChange={(e) => setCardNumber(cleanDigits(e.target.value).slice(0, 19))} />
-                        <input className="time-pill border ms-1" placeholder="MM/YY" value={cardExpiry}
-                            onChange={(e) => { let v = e.target.value.replace(/[^\d]/g, "").slice(0, 4); if (v.length >= 3) v = v.slice(0, 2) + "/" + v.slice(2); setCardExpiry(v); }} />
-                        <input className="time-pill border ms-1" placeholder="CVC"
-                            value={cardCvc} onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, "").slice(0, 4))} />
-                    </div>
-                )}
-            </div>
-
-            <h3 className="text-lg auth-title mb-3 ms-3">Your Information</h3>
-            <div className="grid md:grid-cols-2 gap-4 mb-3 ms-3">
-                <input className="time-pill" placeholder="First Name" value={customerInfo.firstName} onChange={e => setCustomerInfo(p => ({ ...p, firstName: e.target.value }))} />
-                <input className="time-pill" placeholder="Last Name" value={customerInfo.lastName} onChange={e => setCustomerInfo(p => ({ ...p, lastName: e.target.value }))} />
-            </div>
-            <div className="grid md:grid-cols-2 gap-4 mb-3 ms-3">
-                <input className="time-pill" placeholder="Email" value={customerInfo.email} onChange={e => setCustomerInfo(p => ({ ...p, email: e.target.value }))} />
-                <input className="time-pill" placeholder="Phone (+1 xxx-xxx-xxxx)" value={customerInfo.phone} onChange={e => setCustomerInfo(p => ({ ...p, phone: e.target.value }))} />
-            </div>
-            <textarea className="w-full price-pill align-self-center mb-3 ms-3" placeholder="Notes (optional)" value={customerInfo.notes} onChange={e => setCustomerInfo(p => ({ ...p, notes: e.target.value }))} />
-                
-            <div className="ms-3 w-full max-w-sm grid gap-3">
-                <div className="mb-2 price-pill button-text">
-                    <span className="">Estimated total: </span>
-                    <span className="text-gold">${total}</span>
-                </div>
-
-                <button
-                    disabled={!isFormValid}
-                    onClick={handleSubmit}
-                    className="mb-4 ms-3 time-pill"
-                >
-                    {smsStatus ? (<><MessageSquare className="w-5 h-5 mr-2" />{smsStatus}</>) : "Book Now"}
-                </button>
-            </div>
-        </div>
+    const { data: fresh } = await fetchJSON(
+      `${API_ROOT}/api/appointments?staff_id=${staffId}&date=${selectedDate}`
     );
+    setDayBookings(normalizeDay(fresh, selectedDate));
+
+    setCurrentBooking({
+      id: Date.now(),
+      staff: selectedStaff,
+      date: selectedDate,
+      time: selectedTime,
+      duration: totalDuration,
+      services: selectedServices.map(({ id, name, price, duration }) => ({
+        id,
+        name,
+        price,
+        duration,
+      })),
+      payment: {
+        method: paymentMethod,
+        tip: Number(numericTip || 0),
+        card:
+          paymentMethod === "card"
+            ? { name: cardName.trim(), last4: cardLast4, expiry: cardExpiry }
+            : undefined,
+      },
+      customer: customerInfo,
+      totals: { service: servicesTotal, tip: Number(numericTip || 0), total: grandTotal },
+    });
+
+    setCardNumber("");
+    setCardCvc("");
+
+    sendSMS(data).catch(() => {});
+  };
+
+  function getAvailableDates() {
+    const out = [];
+    const today = new Date();
+    for (let i = 0; i <= 30; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      out.push(d.toISOString().slice(0, 10)); // YYYY-MM-DD
+    }
+    return out;
+  }
+  const formatDate = (s) =>
+    new Date(s + "T00:00:00").toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+
+  function StaffCard({ first, last, role, photoUrl, isSelected }) {
+    return (
+      <div
+        className="card shadow-sm text-center mx-auto p-3 hover-lift"
+        style={{
+          width: 220,
+          height: 300,
+          backgroundColor: "white",
+          borderRadius: 12,
+          transition: "all .2s ease-in-out",
+          border: isSelected ? "2px solid var(--gold)" : "2px solid transparent",
+        }}
+      >
+        <div className="ratio ratio-4x3 mb-2">
+          <img src={photoUrl} alt={first} className="w-100 h-100 object-cover rounded-top" />
+        </div>
+        <div className="card-body p-2">
+          <h6 className="mb-1">
+            {first} {last}
+          </h6>
+          <p className="text-gold small mb-1">{role}</p>
+          <Link
+            to="/OurTeam"
+            state={{ staff: { first, last, role, photoUrl } }}
+            className="btn btn-gold btn-sm"
+          >
+            More Info
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  /* --------- Confirmation screen --------- */
+  if (currentBooking) {
+    const b = currentBooking;
+    const tech =
+      typeof b.staff === "number" ? staff[b.staff] : b.staff?.first ? b.staff : null;
+
+    return (
+      <div className="max-w-2xl mx-auto p-6 text-center">
+        <div className="w-16 h-16 flex items-center justify-center mx-auto mb-3">
+          <Check className="w-8 h-8 text-green-600" />
+        </div>
+        <h2 className="text-3xl font-bold mb-1">Booking Confirmed!</h2>
+        <p className="mb-2 price-pill">Your appointment has been successfully booked.</p>
+
+        <div className="bg-gray-50 rounded-lg p-6 mb-6 mt-6 text-left">
+          <div className="space-y-2">
+            <div className="my-4 flex mx-auto">
+              {tech ? (
+                <StaffCard
+                  first={tech.first}
+                  last={tech.last}
+                  role={tech.role}
+                  photoUrl={tech.photoUrl}
+                  isSelected
+                />
+              ) : (
+                <span className="price-pill">Technician not set</span>
+              )}
+            </div>
+            <Line k="Services" v={b.services.map((x) => x.name).join(", ")} />
+            <Line k="Date" v={formatDate(b.date)} />
+            <Line k="Time" v={b.time} />
+            <Line
+              k="Payment"
+              v={`${b.payment.method}${b.payment.card ? ` •••• ${b.payment.card.last4}` : ""}`}
+            />
+            <Line k="Subtotal" v={usd(b.totals.service)} />
+            <Line k="Tip" v={usd(b.totals.tip)} />
+            <Line k="Total" v={usd(b.totals.total)} />
+          </div>
+        </div>
+
+        {smsStatus && (
+          <div className="mb-6 p-3 bg-blue-50 border border-blue-200 rounded">{smsStatus}</div>
+        )}
+
+        <div className="flex gap-3 justify-center">
+          <button onClick={() => setCurrentBooking(null)} className="mb-3 mt-4 time-pill">
+            Book Another
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  /* --------- Booking form --------- */
+  return (
+    <div className="max-w-5xl mx-auto p-6">
+      <div className="text-center mb-4 mt-5">
+        <h2 className="text-2xl auth-title">Book Your Appointment</h2>
+        <p className="text-gray-600">Choose services, a specialist, date, time and payment</p>
+      </div>
+
+      {/* STAFF */}
+      <h3 className="text-lg auth-title mb-3 ms-3">Choose Your Nail Technician</h3>
+      {staffLoading ? (
+        <div className="ms-3 mb-4 price-pill">Loading technicians…</div>
+      ) : staffErr ? (
+        <div className="ms-3 mb-4 alert alert-warning">{staffErr}</div>
+      ) : null}
+      <div className="row gx-3 ps-2 mb-5">
+        {staff.map((item, i) => (
+          <div
+            key={item.id || i}
+            className={`col-auto ${i === 0 ? "ms-md-4" : ""}`}
+            onClick={() => setSelectedStaff(i)}
+            style={{ cursor: "pointer" }}
+          >
+            <StaffCard {...item} isSelected={selectedStaff === i} />
+          </div>
+        ))}
+      </div>
+
+      {/* SERVICES */}
+      <h3 className="text-lg auth-title mb-3 ms-3">Select Services</h3>
+      <div className="row g-4 mb-4 ms-3">
+        {SERVICES_BY_CATEGORY.map((section) => (
+          <div className="col-12 col-lg-6" key={section.title}>
+            <h5 className="mb-3 ps-1">{section.title}</h5>
+            <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+              {section.items.map((s) => (
+                <div className="col d-flex" key={s.id}>
+                  <ServiceCard
+                    icon={s.icon}
+                    title={s.name}
+                    desc={s.description}
+                    price={s.price}
+                    selected={isSelected(s.id)}
+                    onSelect={() => toggleService(s)}
+                    actionLabel={isSelected(s.id) ? "Selected" : "Select"}
+                    compact
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* DATE */}
+      <h3 className="text-lg auth-title mb-3 ms-3">Select Date</h3>
+      <select
+        value={selectedDate}
+        onChange={(e) => setSelectedDate(e.target.value)}
+        className="ms-3 w-full time-pill border mb-4"
+        style={{
+          borderStyle: "solid",
+          borderColor: selectedDate ? "var(--gold)" : "transparent",
+        }}
+      >
+        <option value="">Choose a date</option>
+        {getAvailableDates().map((d) => (
+          <option key={d} value={d}>
+            {formatDate(d)}
+          </option>
+        ))}
+      </select>
+
+      {/* TIME */}
+      <h3 className="text-lg auth-title mb-3 ms-3">Select Time</h3>
+      <div className="grid grid-cols-3 mb-3 ms-3">
+        {slots.map((hhmm) => {
+          const disabled = slotDisabled(hhmm);
+          return (
+            <button
+              key={hhmm}
+              type="button"
+              onClick={() => !disabled && setSelectedTime(hhmm)}
+              className={`time-pill align-self-center ${
+                selectedTime === hhmm ? "selected" : ""
+              } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+              disabled={disabled}
+              style={{
+                transition: "all .25s ease-in-out",
+                borderStyle: "solid",
+                borderColor: selectedTime === hhmm ? "var(--gold)" : "transparent",
+              }}
+              title={disabled ? "Overlaps another appointment" : ""}
+            >
+              {hhmmTo12(hhmm)}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="ms-3 mb-4">
+        <input
+          type="time"
+          step="1800"
+          min="09:00"
+          max="18:30"
+          value={selectedTime}
+          onChange={(e) => setSelectedTime(e.target.value)}
+          className="time-pill border"
+        />
+        <small className="ms-2 text-muted">You can also type a time</small>
+      </div>
+
+      {/* PAYMENT */}
+      <h3 className="text-lg auth-title mb-3 ms-3">Payment</h3>
+      <div className="flex flex-col gap-4 mb-4 ms-3">
+        <div className="flex gap-4 mb-2">
+          <label className={`time-pill border cursor-pointer ${paymentMethod === "cash"}`}>
+            <input
+              type="radio"
+              name="pay"
+              value="cash"
+              className="mr-2"
+              checked={paymentMethod === "cash"}
+              onChange={() => setPaymentMethod("cash")}
+            />
+            Cash
+          </label>
+          <label className={`time-pill border ms-2 cursor-pointer ${paymentMethod === "card"}`}>
+            <input
+              type="radio"
+              name="pay"
+              value="card"
+              className="mr-2"
+              checked={paymentMethod === "card"}
+              onChange={() => setPaymentMethod("card")}
+            />
+            Card
+          </label>
+        </div>
+
+        <div className="grid md:grid-cols-4 gap-2 mb-3">
+          {[0, 5, 10, 15, 20].map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTip(String(t))}
+              className={`time-pill ${Number(tip) === t ? "selected" : ""} ms-2`}
+              style={{ transition: "all .2s ease-in-out", borderStyle: "solid" }}
+            >
+              Tip {usd(t)}
+            </button>
+          ))}
+          <input
+            className="time-pill border align-self-center md:col-span-2 ms-2"
+            placeholder="Custom tip ($)"
+            value={tip}
+            onChange={(e) => setTip(e.target.value.replace(/[^\d.]/g, ""))}
+          />
+        </div>
+
+        {paymentMethod === "card" && (
+          <div className="grid md:grid-cols-2">
+            <input
+              className="time-pill border"
+              placeholder="Name on card"
+              value={cardName}
+              onChange={(e) => setCardName(e.target.value)}
+            />
+            <input
+              className="time-pill border ms-1"
+              placeholder="Card number"
+              value={cardNumber}
+              onChange={(e) => setCardNumber(cleanDigits(e.target.value).slice(0, 19))}
+            />
+            <input
+              className="time-pill border ms-1"
+              placeholder="MM/YY"
+              value={cardExpiry}
+              onChange={(e) => {
+                let v = e.target.value.replace(/[^\d]/g, "").slice(0, 4);
+                if (v.length >= 3) v = v.slice(0, 2) + "/" + v.slice(2);
+                setCardExpiry(v);
+              }}
+            />
+            <input
+              className="time-pill border ms-1"
+              placeholder="CVC"
+              value={cardCvc}
+              onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, "").slice(0, 4))}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* ACCOUNT / CUSTOMER INFO */}
+      {profileLoading && <div className="ms-3 mb-2 alert alert-info">Loading your profile…</div>}
+      {profileError && <div className="ms-3 mb-2 alert alert-warning">{profileError}</div>}
+      {isLoggedIn && !profileLoading && !profileError && (
+        <div className="ms-3 mb-3 price-pill">
+          Using your account info ({customerInfo.firstName} {customerInfo.lastName},{" "}
+          {customerInfo.email}, {customerInfo.phone})
+        </div>
+      )}
+
+      {!isLoggedIn && (
+        <>
+          <h3 className="text-lg auth-title mb-3 ms-3">Your Information</h3>
+          <div className="grid md:grid-cols-2 gap-4 mb-3 ms-3">
+            <input
+              className="time-pill"
+              placeholder="First Name"
+              value={customerInfo.firstName}
+              onChange={(e) =>
+                setCustomerInfo((p) => ({ ...p, firstName: e.target.value }))
+              }
+            />
+            <input
+              className="time-pill"
+              placeholder="Last Name"
+              value={customerInfo.lastName}
+              onChange={(e) => setCustomerInfo((p) => ({ ...p, lastName: e.target.value }))}
+            />
+          </div>
+          <div className="grid md:grid-cols-2 gap-4 mb-3 ms-3">
+            <input
+              className="time-pill"
+              placeholder="Email"
+              value={customerInfo.email}
+              onChange={(e) => setCustomerInfo((p) => ({ ...p, email: e.target.value }))}
+            />
+            <input
+              className="time-pill"
+              placeholder="Phone (+1 xxx-xxx-xxxx)"
+              value={customerInfo.phone}
+              onChange={(e) => setCustomerInfo((p) => ({ ...p, phone: e.target.value }))}
+            />
+          </div>
+          <textarea
+            className="w-full price-pill align-self-center mb-3 ms-3"
+            placeholder="Notes (optional)"
+            value={customerInfo.notes}
+            onChange={(e) => setCustomerInfo((p) => ({ ...p, notes: e.target.value }))}
+          />
+        </>
+      )}
+
+      {/* SUMMARY */}
+      <div className="ms-3 w-full max-w-sm grid gap-3">
+        <div className="mb-2 price-pill button-text">
+          <span>Estimated total: </span>
+          <span className="text-gold">{usd(grandTotal)}</span>
+          {totalDuration > 0 && (
+            <span className="ms-2 text-muted">({totalDuration} min)</span>
+          )}
+        </div>
+
+        <button disabled={!formOk} onClick={handleSubmit} className="mb-4 ms-3 time-pill">
+          {smsStatus ? (
+            <>
+              <MessageSquare className="w-5 h-5 mr-2" />
+              {smsStatus}
+            </>
+          ) : (
+            "Book Now"
+          )}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 function Line({ k, v }) {
-    return (
-        <div className="flex justify-between">
-            <span className={"price-pill mb-1"}>{k}:</span>
-            <span className={"price-pill-gold ms-1"}>{v}</span>
-        </div>
-    );
+  return (
+    <div className="flex justify-between">
+      <span className="price-pill mb-1">{k}:</span>
+      <span className="price-pill-gold ms-1">{v}</span>
+    </div>
+  );
 }

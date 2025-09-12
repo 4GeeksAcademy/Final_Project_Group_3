@@ -2,16 +2,70 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User
+from api.models import db, User, Appointment
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from functools import wraps
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
+import os
 
 api = Blueprint('api', __name__)
 
 # Allow CORS requests to this API
 CORS(api)
+
+LOCAL_TZ = ZoneInfo(os.getenv("LOCAL_TZ", "America/New_York"))
+
+# ----------------- Time helpers (all timezone-aware) -----------------
+
+def parse_iso_to_utc(s: str) -> datetime:
+    """
+    Accepts:
+      - 'YYYY-MM-DDTHH:MM' (no zone => interpret as LOCAL_TZ)
+      - '...+/-HH:MM'
+      - '...Z'
+    Returns a timezone-aware datetime in UTC.
+    """
+    if not s:
+        raise ValueError("starts_at required")
+
+    s = s.strip()
+    if s.endswith("Z"):
+        dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+    else:
+        dt = datetime.fromisoformat(s)
+
+    if dt.tzinfo is None:
+        # treat as wall-clock time in salon's timezone
+        dt = dt.replace(tzinfo=LOCAL_TZ)
+
+    return dt.astimezone(timezone.utc)
+
+
+def day_bounds_utc(yyyy_mm_dd: str) -> tuple[datetime, datetime]:
+    """
+    Given a local date string 'YYYY-MM-DD', compute the UTC start/end
+    of that local day.
+    """
+    y, m, d = map(int, yyyy_mm_dd.split("-"))
+    local_start = datetime(y, m, d, 0, 0, 0, tzinfo=LOCAL_TZ)
+    local_end   = local_start + timedelta(days=1)
+    return local_start.astimezone(timezone.utc), local_end.astimezone(timezone.utc)
+
+
+def overlaps(a_start_dt: datetime, a_min: int,
+             b_start_dt: datetime, b_min: int) -> bool:
+    """
+    Interval overlap check. Inputs may have any tz; we compare in UTC.
+    """
+    a = a_start_dt.astimezone(timezone.utc)
+    b = b_start_dt.astimezone(timezone.utc)
+    a_end = a + timedelta(minutes=int(a_min or 0))
+    b_end = b + timedelta(minutes=int(b_min or 0))
+    return a < b_end and b < a_end
+
 
 def require_roles(*allowed_roles):
     """
@@ -31,17 +85,6 @@ def require_roles(*allowed_roles):
         return wrapper
     return decorator
 
-
-@api.route('/hello', methods=['POST', 'GET'])
-def handle_hello():
-
-    response_body = {
-        "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
-    }
-
-    return jsonify(response_body), 200
-
-
 @api.route('/user', methods=['POST'])
 def sign_up():
 
@@ -56,7 +99,6 @@ def sign_up():
     if not all([email, password, first, last]):
         return jsonify({"msg": "Missing required fields"}), 400
 
-
     user = User(email=body["email"], password=body["password"],
                 phone=body["phone"], fname=body["first"], lname=body["last"])
     db.session.add(user)
@@ -67,11 +109,13 @@ def sign_up():
         return "recieved", 200
     else:
         return "Error, user could not be created", 500
-    
+
+
 @api.route('/staff', methods=['GET'])
 def get_staff():
     staff_users = User.query.filter_by(role="Staff").all()
     return jsonify([s.serialize() for s in staff_users]), 200
+
 
 @api.route('/staff', methods=['POST'])
 @require_roles("Admin")
@@ -131,9 +175,9 @@ def create_token():
     return jsonify({"token": access_token, "user_id": user.id})
 
 # Get currently logged in user (Protected)
-#@api.route("/me", methods=["GET"])
+# @api.route("/me", methods=["GET"])
 # @jwt_required(optional=True)
-#def me():
+# def me():
 #    user_id = get_jwt_identity()
 #    user = User.query.get(user_id)
 #    if not user:
@@ -144,6 +188,7 @@ def create_token():
 #        "first": user.fname,
 #        "email": user.email
 #    })
+
 
 @api.route("/me/<int:user_id>", methods=["GET"])
 def me(user_id):
@@ -178,6 +223,7 @@ def get_admins():
         for admin in admins
     ])
 
+
 @api.route("/customers", methods=["GET"])
 def get_customers():
     customers = User.query.filter(User.role == "Customer").all()
@@ -195,6 +241,7 @@ def get_customers():
         }
         for customer in customers
     ])
+
 
 @api.route("/user/<int:user_id>/role", methods=["PUT"])
 def update_user_role(user_id):
@@ -231,7 +278,7 @@ def update_user_info(user_id):
     phone = data.get("phone")
     email = data.get("email")
 
-    if not all ([first, last, phone, email]):
+    if not all([first, last, phone, email]):
         return jsonify({"msg": "Error: All fields required"}), 400
 
     user = User.query.get(user_id)
@@ -254,6 +301,132 @@ def update_user_info(user_id):
         "role": user.role
     }), 200
 
+# ---- Appointments API ----
+
+@api.route("/appointments", methods=["GET"])
+def list_appointments():
+    q = Appointment.query
+
+    staff_id = request.args.get("staff_id", type=int)
+    if staff_id is not None:
+        q = q.filter(Appointment.staff_id == staff_id)
+
+    date_str = request.args.get("date")
+    if date_str:
+        # constrain to that local day, but do it in UTC for storage
+        start_utc, end_utc = day_bounds_utc(date_str)
+        q = q.filter(
+            Appointment.starts_at >= start_utc,
+            Appointment.starts_at <  end_utc,
+        )
+    else:
+        # optional admin range
+        date_from = request.args.get("from")
+        date_to   = request.args.get("to")
+        if date_from:
+            start_utc, _ = day_bounds_utc(date_from)
+            q = q.filter(Appointment.starts_at >= start_utc)
+        if date_to:
+            _, end_utc = day_bounds_utc(date_to)
+            q = q.filter(Appointment.starts_at < end_utc)
+
+    q = q.order_by(Appointment.starts_at.asc())
+    return jsonify([a.serialize() for a in q.all()]), 200
+
+
+# ----------------- POST /api/appointments -----------------
+
+@api.route("/appointments", methods=["POST"])
+def create_appointment():
+    data = request.get_json(silent=True) or {}
+
+    staff_id = data.get("staff_id")
+    starts_at_utc = parse_iso_to_utc(data.get("starts_at"))  # <-- ALWAYS UTC (aware)
+    duration_min = int(data.get("duration") or data.get("duration_min") or 0)
+    services = data.get("services") or []
+
+    subtotal = float(data.get("subtotal") or 0)
+    tip      = float(data.get("tip") or 0)
+    total    = float(data.get("total") or (subtotal + tip))
+
+    if not staff_id or not starts_at_utc or not duration_min:
+        return jsonify({"msg": "Missing required fields"}), 400
+
+    # Ensure staff exists
+    staff = User.query.get(staff_id)
+    if not staff:
+        return jsonify({"msg": "Staff not found"}), 404
+
+    # Overlap window: compute the LOCAL day for the chosen starts_at,
+    # then convert that day's bounds to UTC and limit the query.
+    local_day = starts_at_utc.astimezone(LOCAL_TZ).strftime("%Y-%m-%d")
+    day_start_utc, day_end_utc = day_bounds_utc(local_day)
+
+    existing = (
+        Appointment.query
+        .filter(Appointment.staff_id == staff_id)
+        .filter(Appointment.starts_at >= day_start_utc)
+        .filter(Appointment.starts_at <  day_end_utc)
+        .all()
+    )
+
+    for ap in existing:
+        if overlaps(starts_at_utc, duration_min, ap.starts_at, ap.duration_min):
+            return jsonify({"msg": "Selected time overlaps another appointment"}), 409
+
+    # Optional: create/match a lightweight customer
+    customer_id = None
+    cust = data.get("customer") or {}
+    cust_email = (cust.get("email") or "").strip().lower()
+    if cust_email:
+        existing_cust = User.query.filter_by(email=cust_email).first()
+        if existing_cust:
+            customer_id = existing_cust.id
+        else:
+            new_cust = User(
+                email=cust_email,
+                password="!",                # placeholder; no login with this
+                phone=cust.get("phone") or "",
+                fname=cust.get("first") or "",
+                lname=cust.get("last") or "",
+                role="Customer",
+            )
+            db.session.add(new_cust)
+            db.session.flush()
+            customer_id = new_cust.id
+
+    appt = Appointment(
+        staff_id=staff_id,
+        customer_id=customer_id,
+        starts_at=starts_at_utc,          # stored as UTC (timezone=True column)
+        duration_min=duration_min,
+        services=services,
+        subtotal=subtotal,
+        tip=tip,
+        total=total,
+        notes=data.get("notes") or None,
+    )
+
+    db.session.add(appt)
+    db.session.commit()
+
+    return jsonify(appt.serialize()), 201
+
+
+
+@api.route("/appointments/<int:appt_id>", methods=["DELETE"])
+def delete_appointment(appt_id: int):
+    ap = Appointment.query.get(appt_id)
+    if not ap:
+        return jsonify({"msg": "Appointment not found"}), 404
+    db.session.delete(ap)
+    db.session.commit()
+    return jsonify({"ok": True}), 200
+
+@api.before_app_request
+def _ensure_tables():
+    db.create_all()
+
 # @api.route('/staff', methods=['POST'])
 # def add_staff():
 #     data = request.get_json()
@@ -273,4 +446,4 @@ def update_user_info(user_id):
 #     db.session.add(new_staff)
 #     db.session.commit()
 
-#     return jsonify(new_staff.serialize()), 201 
+#     return jsonify(new_staff.serialize()), 201

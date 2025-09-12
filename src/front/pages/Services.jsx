@@ -194,15 +194,15 @@ export function Services() {
             <header className="position-relative hero-ratio">
                 <img src={hero1} alt="nails hero" className="w-100 h-100 hero-img position-absolute top-0 start-0" />
                 <div className="hero-overlay d-flex flex-column align-items-center justify-content-center text-center">
-                    <h1 className="display-5 text-white text-shadow mb-2">Nails</h1>
-                    <p className="text-white-50 mb-3 text-shadow">
+                    <h1 className="display-5 text-white auth-title mb-2">Nails</h1>
+                    <p className="text-white-50 mb-3 text-shadow auth-title">
                         Enjoy Our Assortment of Nail Services
                     </p>
                     <div className="d-flex gap-2 flex-wrap justify-content-center">
-                        <a href="#Manicures" className="btn btn-gold">Manicures</a>
-                        <a href="#Pedicures" className="btn btn-gold">Pedicures</a>
-                        <a href="#Dips" className="btn btn-gold">Dips</a>
-                        <a href="#Acrylics" className="btn btn-gold">Acrylics</a>
+                        <a href="#Manicures" className="btn btn-gold button-text">Manicures</a>
+                        <a href="#Pedicures" className="btn btn-gold button-text">Pedicures</a>
+                        <a href="#Dips" className="btn btn-gold button-text">Dips</a>
+                        <a href="#Acrylics" className="btn btn-gold button-text">Acrylics</a>
                     </div>
                 </div>
 
@@ -230,7 +230,7 @@ export function Services() {
 
                         {/* Right: Service Cards */}
                         <div className="col-md-6 order-2 order-md-2">
-                            <h3 className="mb-4">Manicures</h3>
+                            <h3 className="mb-4 auth-title">Manicures</h3>
                             <div className="row row-cols-1 row-cols-sm-3 g-4">
                                 {MANICURES.map((c) => (
                                     <ServiceCard key={c.title} {...c} />
@@ -248,7 +248,7 @@ export function Services() {
                     <div className="split-grid">
                         {/* Left: card group */}
                         <div className="split-grid__content">
-                            <h3 className="mb-4">Pedicures</h3>
+                            <h3 className="mb-4 auth-title">Pedicures</h3>
 
                             <div className="row row-cols-1 row-cols-md-3 g-4">
                                 {PEDICURES.map(c => (
@@ -275,7 +275,7 @@ export function Services() {
 
                         {/* Right: card group */}
                         <div className="split-grid__content">
-                            <h3 className="mb-4">Dip Powder</h3>
+                            <h3 className="mb-4 auth-title">Dip Powder</h3>
 
                             <div className="row row-cols-1 row-cols-md-3 g-4">
                                 {DIPS.map(c => (
@@ -293,7 +293,7 @@ export function Services() {
                     <div className="split-grid">
                         {/* Left: card group */}
                         <div className="split-grid__content">
-                            <h3 className="mb-4">Acrylics</h3>
+                            <h3 className="mb-4 auth-title">Acrylics</h3>
 
                             <div className="row row-cols-1 row-cols-md-3 g-4">
                                 {ACRYLICS.map(c => (
@@ -311,7 +311,9 @@ export function Services() {
             </section>
 
             {/* ADD-ONS */}
-            <SectionHeading id="AddOns">Add-Ons</SectionHeading>
+            <SectionHeading id="AddOns">
+                <span className="auth-title">Add-Ons</span>
+            </SectionHeading>
             <section className="py-5">
                 <div className="container">
                     <div className="row row-cols-1 row-cols-md-4 g-4">

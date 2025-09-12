@@ -49,7 +49,7 @@ export const Login = () => {
 
                 <div className="mb-3">
                     <input
-                        className="form-control form-control-lg"
+                        className="form-control time-pill"
                         placeholder="email"
                         value={emailInputValue}
                         onChange={(event) => setEmailInputValue(event.target.value)}
@@ -58,7 +58,7 @@ export const Login = () => {
 
                 <div className="mb-3">
                     <input
-                        className="form-control form-control-lg"
+                        className="form-control time-pill"
                         type="password"
                         placeholder="password"
                         value={passwordInputValue}
