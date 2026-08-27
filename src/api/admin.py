@@ -8,14 +8,18 @@ from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
 # ---------- Users ----------
+
+
 class UserAdmin(ModelView):
     # nice defaults for the grid + forms
-    column_list = ("id", "fname", "lname", "email", "role", "phone", "bio", "photo_url", "booking_url")
+    column_list = ("id", "fname", "lname", "email", "role",
+                   "phone", "bio", "photo_url", "booking_url")
     column_searchable_list = ("fname", "lname", "role", "email")
     column_filters = ("role",)
     can_view_details = True
 
-    form_columns = ("fname", "lname", "email", "password", "phone", "role", "bio", "photo_url", "booking_url")
+    form_columns = ("fname", "lname", "email", "password",
+                    "phone", "role", "bio", "photo_url", "booking_url")
 
 
 # ---------- Appointments ----------
@@ -24,11 +28,13 @@ def _service_names(view, context, model, name):
     try:
         if isinstance(data, str):
             data = json.loads(data or "[]")
-        names = [s.get("name") for s in data if isinstance(s, dict) and s.get("name")]
+        names = [s.get("name")
+                 for s in data if isinstance(s, dict) and s.get("name")]
     except Exception:
         names = []
 
     return ", ".join(names) or "—"
+
 
 def _fmt_starts_at(view, context, model, name):
     val = getattr(model, name)
@@ -39,7 +45,7 @@ def _fmt_starts_at(view, context, model, name):
         try:
             val = datetime.fromisoformat(val.replace("Z", "+00:00"))
         except Exception:
-            return val 
+            return val
 
     try:
         if getattr(val, "tzinfo", None) is not None:
@@ -49,7 +55,9 @@ def _fmt_starts_at(view, context, model, name):
 
     return val.strftime("%b %d, %Y %I:%M %p")
 
+
 LOCAL_TZ = ZoneInfo(os.getenv("LOCAL_TZ", "America/New_York"))
+
 
 def _fmt_starts_at(view, context, model, name):
     val = getattr(model, name)
@@ -61,6 +69,7 @@ def _fmt_starts_at(view, context, model, name):
         dt = dt.replace(tzinfo=timezone.utc)
     local = dt.astimezone(LOCAL_TZ)
     return local.strftime("%b %d, %Y %I:%M %p")
+
 
 class AppointmentAdmin(ModelView):
     column_list = (
@@ -75,6 +84,8 @@ class AppointmentAdmin(ModelView):
         "services": _service_names,
         "starts_at": _fmt_starts_at,  # <-- 12-hour time + date
     }
+
+
 def setup_admin(app):
     app.secret_key = os.environ.get("FLASK_APP_KEY", "sample key")
     app.config["FLASK_ADMIN_SWATCH"] = "cerulean"
